@@ -1,0 +1,1610 @@
+---
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+		<meta
+			name="description"
+			content="Pollen Rush - a fan-made bee minigame for The Majestic Bees calculator."
+		/>
+
+		<title>Pollen Rush | TMB Calculator</title>
+	</head>
+
+	<body>
+		<div class="background-glow glow-blue"></div>
+		<div class="background-glow glow-pink"></div>
+
+		<header class="topbar">
+			<a class="brand" href="/">
+				<div class="bee-logo">🐝</div>
+
+				<div>
+					<div class="brand-title">The Majestic Bees</div>
+					<div class="brand-subtitle">TMB Calculator</div>
+				</div>
+			</a>
+
+			<nav class="site-nav">
+				<a href="/">Calculator</a>
+				<a class="active" href="/bee-game/">Bee Minigame</a>
+			</nav>
+		</header>
+
+		<main>
+			<section class="hero">
+				<div class="eyebrow">TMB MINIGAME</div>
+
+				<h1>
+					Pollen
+					<span>Rush.</span>
+				</h1>
+
+				<p>
+					Grab as much pollen as possible before time runs out.
+					Chain flowers together for combos and stay away from spiders.
+				</p>
+			</section>
+
+			<section class="game-layout">
+				<div class="game-card">
+					<div class="game-header">
+						<div>
+							<div class="game-kicker">POLLEN FIELD</div>
+							<h2>Fly, collect, survive.</h2>
+						</div>
+
+						<div id="gameStatus" class="status-pill">
+							Ready
+						</div>
+					</div>
+
+					<div class="canvas-wrapper">
+						<canvas
+							id="gameCanvas"
+							width="900"
+							height="560"
+							aria-label="Pollen Rush game"
+						></canvas>
+
+						<div id="startOverlay" class="game-overlay">
+							<div class="overlay-bee">🐝</div>
+
+							<h2>Pollen Rush</h2>
+
+							<p>
+								Collect flowers, build your combo, and avoid spiders.
+							</p>
+
+							<div class="control-hint">
+								<span>WASD</span>
+								<span>or</span>
+								<span>Arrow Keys</span>
+							</div>
+
+							<button id="startButton" type="button">
+								Start Game
+							</button>
+						</div>
+
+						<div id="gameOverOverlay" class="game-overlay hidden">
+							<div class="overlay-bee">🏁</div>
+
+							<div class="game-over-label">RUN COMPLETE</div>
+
+							<h2 id="finalScore">0 Pollen</h2>
+
+							<p id="gameOverMessage">
+								Not bad, little bee.
+							</p>
+
+							<button id="restartButton" type="button">
+								Play Again
+							</button>
+						</div>
+					</div>
+
+					<div class="mobile-controls">
+						<div class="mobile-row">
+							<button class="move-button" data-key="ArrowUp" type="button">
+								↑
+							</button>
+						</div>
+
+						<div class="mobile-row">
+							<button class="move-button" data-key="ArrowLeft" type="button">
+								←
+							</button>
+
+							<button class="move-button" data-key="ArrowDown" type="button">
+								↓
+							</button>
+
+							<button class="move-button" data-key="ArrowRight" type="button">
+								→
+							</button>
+						</div>
+					</div>
+				</div>
+
+				<aside class="stats-card">
+					<div class="stats-title">
+						<div>
+							<div class="game-kicker">RUN STATS</div>
+							<h2>Your hive report</h2>
+						</div>
+					</div>
+
+					<div class="stat-grid">
+						<div class="stat-box">
+							<span>Pollen</span>
+							<strong id="scoreValue">0</strong>
+						</div>
+
+						<div class="stat-box">
+							<span>Time</span>
+							<strong id="timeValue">60</strong>
+						</div>
+
+						<div class="stat-box">
+							<span>Combo</span>
+							<strong id="comboValue">x1</strong>
+						</div>
+
+						<div class="stat-box">
+							<span>Best</span>
+							<strong id="highScoreValue">0</strong>
+						</div>
+					</div>
+
+					<div class="legend">
+						<h3>Field Guide</h3>
+
+						<div class="legend-row">
+							<div class="legend-icon">🌸</div>
+
+							<div>
+								<strong>Flower</strong>
+								<span>+10 pollen × combo</span>
+							</div>
+						</div>
+
+						<div class="legend-row">
+							<div class="legend-icon">🌟</div>
+
+							<div>
+								<strong>Golden Flower</strong>
+								<span>+50 pollen × combo</span>
+							</div>
+						</div>
+
+						<div class="legend-row">
+							<div class="legend-icon">🕷️</div>
+
+							<div>
+								<strong>Spider</strong>
+								<span>Lose pollen and your combo</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="tips">
+						<div class="tips-label">HOW COMBOS WORK</div>
+
+						<p>
+							Collect another flower within
+							<strong>3 seconds</strong>
+							to increase your multiplier. A spider immediately
+							resets it.
+						</p>
+					</div>
+				</aside>
+			</section>
+
+			<footer>
+				Fan-made minigame for
+				<strong>The Majestic Bees</strong>.
+			</footer>
+		</main>
+
+		<script is:inline>
+			const canvas = document.getElementById("gameCanvas");
+			const ctx = canvas.getContext("2d");
+
+			const startOverlay = document.getElementById("startOverlay");
+			const gameOverOverlay = document.getElementById("gameOverOverlay");
+
+			const startButton = document.getElementById("startButton");
+			const restartButton = document.getElementById("restartButton");
+
+			const scoreValue = document.getElementById("scoreValue");
+			const timeValue = document.getElementById("timeValue");
+			const comboValue = document.getElementById("comboValue");
+			const highScoreValue = document.getElementById("highScoreValue");
+
+			const finalScore = document.getElementById("finalScore");
+			const gameOverMessage = document.getElementById("gameOverMessage");
+
+			const gameStatus = document.getElementById("gameStatus");
+
+			const GAME_LENGTH = 60;
+
+			const keys = {};
+
+			let running = false;
+			let score = 0;
+			let timeLeft = GAME_LENGTH;
+			let combo = 1;
+
+			let lastCollectTime = 0;
+			let lastFrameTime = 0;
+			let timerAccumulator = 0;
+
+			let highScore = Number(
+				localStorage.getItem("tmbPollenRushHighScore") || 0
+			);
+
+			highScoreValue.textContent = highScore.toLocaleString();
+
+			const bee = {
+				x: canvas.width / 2,
+				y: canvas.height / 2,
+				radius: 22,
+				speed: 280,
+				angle: 0,
+			};
+
+			let flowers = [];
+			let spiders = [];
+			let particles = [];
+
+			function randomBetween(min, max) {
+				return Math.random() * (max - min) + min;
+			}
+
+			function distance(a, b) {
+				const dx = a.x - b.x;
+				const dy = a.y - b.y;
+
+				return Math.sqrt(dx * dx + dy * dy);
+			}
+
+			function createFlower(golden = false) {
+				return {
+					x: randomBetween(50, canvas.width - 50),
+					y: randomBetween(50, canvas.height - 50),
+					radius: golden ? 19 : 15,
+					golden,
+					pulse: Math.random() * Math.PI * 2,
+				};
+			}
+
+			function createSpider() {
+				const edge = Math.floor(Math.random() * 4);
+
+				let x;
+				let y;
+
+				if (edge === 0) {
+					x = -30;
+					y = randomBetween(50, canvas.height - 50);
+				} else if (edge === 1) {
+					x = canvas.width + 30;
+					y = randomBetween(50, canvas.height - 50);
+				} else if (edge === 2) {
+					x = randomBetween(50, canvas.width - 50);
+					y = -30;
+				} else {
+					x = randomBetween(50, canvas.width - 50);
+					y = canvas.height + 30;
+				}
+
+				return {
+					x,
+					y,
+					radius: 20,
+					speed: randomBetween(60, 95),
+					wobble: Math.random() * Math.PI * 2,
+					hitCooldown: 0,
+				};
+			}
+
+			function resetGame() {
+				score = 0;
+				timeLeft = GAME_LENGTH;
+				combo = 1;
+
+				lastCollectTime = 0;
+				timerAccumulator = 0;
+
+				bee.x = canvas.width / 2;
+				bee.y = canvas.height / 2;
+				bee.angle = 0;
+
+				flowers = [];
+				spiders = [];
+				particles = [];
+
+				for (let i = 0; i < 10; i++) {
+					flowers.push(createFlower(false));
+				}
+
+				flowers.push(createFlower(true));
+
+				for (let i = 0; i < 3; i++) {
+					spiders.push(createSpider());
+				}
+
+				updateUI();
+			}
+
+			function startGame() {
+				resetGame();
+
+				running = true;
+
+				startOverlay.classList.add("hidden");
+				gameOverOverlay.classList.add("hidden");
+
+				gameStatus.textContent = "Flying";
+				gameStatus.classList.add("running");
+
+				lastFrameTime = performance.now();
+
+				requestAnimationFrame(gameLoop);
+			}
+
+			function endGame() {
+				running = false;
+
+				gameStatus.textContent = "Finished";
+				gameStatus.classList.remove("running");
+
+				if (score > highScore) {
+					highScore = score;
+
+					localStorage.setItem(
+						"tmbPollenRushHighScore",
+						String(highScore)
+					);
+
+					highScoreValue.textContent =
+						highScore.toLocaleString();
+
+					gameOverMessage.textContent =
+						"NEW HIGH SCORE. The hive is going crazy.";
+				} else if (score >= 3000) {
+					gameOverMessage.textContent =
+						"You absolutely farmed that field.";
+				} else if (score >= 1500) {
+					gameOverMessage.textContent =
+						"That was a seriously solid run.";
+				} else if (score >= 700) {
+					gameOverMessage.textContent =
+						"Not bad. The hive approves.";
+				} else {
+					gameOverMessage.textContent =
+						"Get back in that field, little bee.";
+				}
+
+				finalScore.textContent =
+					`${score.toLocaleString()} Pollen`;
+
+				gameOverOverlay.classList.remove("hidden");
+			}
+
+			function updateUI() {
+				scoreValue.textContent = score.toLocaleString();
+				timeValue.textContent = Math.ceil(timeLeft);
+				comboValue.textContent = `x${combo}`;
+			}
+
+			function collectFlower(index) {
+				const flower = flowers[index];
+
+				const now = performance.now();
+
+				if (
+					lastCollectTime &&
+					now - lastCollectTime <= 3000
+				) {
+					combo = Math.min(combo + 1, 10);
+				} else {
+					combo = 1;
+				}
+
+				lastCollectTime = now;
+
+				const basePoints = flower.golden ? 50 : 10;
+
+				score += basePoints * combo;
+
+				spawnParticles(
+					flower.x,
+					flower.y,
+					flower.golden ? "#ffffff" : "#f5a9b8"
+				);
+
+				flowers.splice(index, 1);
+
+				flowers.push(createFlower(false));
+
+				if (flower.golden) {
+					setTimeout(() => {
+						if (running) {
+							flowers.push(createFlower(true));
+						}
+					}, 2500);
+				}
+
+				updateUI();
+			}
+
+			function hitSpider(spider) {
+				if (spider.hitCooldown > 0) {
+					return;
+				}
+
+				spider.hitCooldown = 1.2;
+
+				score = Math.max(0, score - 100);
+				combo = 1;
+				lastCollectTime = 0;
+
+				spawnParticles(
+					bee.x,
+					bee.y,
+					"#5bcefa"
+				);
+
+				updateUI();
+			}
+
+			function spawnParticles(x, y, color) {
+				for (let i = 0; i < 12; i++) {
+					particles.push({
+						x,
+						y,
+						vx: randomBetween(-100, 100),
+						vy: randomBetween(-100, 100),
+						life: 0.7,
+						color,
+					});
+				}
+			}
+
+			function update(delta) {
+				let dx = 0;
+				let dy = 0;
+
+				if (keys["ArrowLeft"] || keys["a"]) dx -= 1;
+				if (keys["ArrowRight"] || keys["d"]) dx += 1;
+				if (keys["ArrowUp"] || keys["w"]) dy -= 1;
+				if (keys["ArrowDown"] || keys["s"]) dy += 1;
+
+				if (dx !== 0 || dy !== 0) {
+					const length = Math.sqrt(dx * dx + dy * dy);
+
+					dx /= length;
+					dy /= length;
+
+					bee.x += dx * bee.speed * delta;
+					bee.y += dy * bee.speed * delta;
+
+					bee.angle = Math.atan2(dy, dx);
+				}
+
+				bee.x = Math.max(
+					bee.radius,
+					Math.min(canvas.width - bee.radius, bee.x)
+				);
+
+				bee.y = Math.max(
+					bee.radius,
+					Math.min(canvas.height - bee.radius, bee.y)
+				);
+
+				for (let i = flowers.length - 1; i >= 0; i--) {
+					flowers[i].pulse += delta * 3;
+
+					if (
+						distance(bee, flowers[i]) <
+						bee.radius + flowers[i].radius
+					) {
+						collectFlower(i);
+					}
+				}
+
+				for (const spider of spiders) {
+					const angle = Math.atan2(
+						bee.y - spider.y,
+						bee.x - spider.x
+					);
+
+					spider.wobble += delta * 5;
+
+					spider.x +=
+						Math.cos(angle) *
+						spider.speed *
+						delta;
+
+					spider.y +=
+						Math.sin(angle) *
+						spider.speed *
+						delta;
+
+					if (spider.hitCooldown > 0) {
+						spider.hitCooldown -= delta;
+					}
+
+					if (
+						distance(bee, spider) <
+						bee.radius + spider.radius
+					) {
+						hitSpider(spider);
+					}
+				}
+
+				for (let i = particles.length - 1; i >= 0; i--) {
+					const particle = particles[i];
+
+					particle.x += particle.vx * delta;
+					particle.y += particle.vy * delta;
+
+					particle.vx *= 0.96;
+					particle.vy *= 0.96;
+
+					particle.life -= delta;
+
+					if (particle.life <= 0) {
+						particles.splice(i, 1);
+					}
+				}
+
+				if (
+					lastCollectTime &&
+					performance.now() - lastCollectTime > 3000
+				) {
+					combo = 1;
+					lastCollectTime = 0;
+				}
+
+				timerAccumulator += delta;
+
+				if (timerAccumulator >= 1) {
+					timerAccumulator -= 1;
+
+					timeLeft -= 1;
+
+					if (timeLeft <= 0) {
+						timeLeft = 0;
+						updateUI();
+						endGame();
+						return;
+					}
+
+					updateUI();
+				}
+			}
+
+			function drawField() {
+				const gradient = ctx.createLinearGradient(
+					0,
+					0,
+					canvas.width,
+					canvas.height
+				);
+
+				gradient.addColorStop(0, "#102033");
+				gradient.addColorStop(0.48, "#121725");
+				gradient.addColorStop(1, "#291824");
+
+				ctx.fillStyle = gradient;
+
+				ctx.fillRect(
+					0,
+					0,
+					canvas.width,
+					canvas.height
+				);
+
+				ctx.strokeStyle = "rgba(255,255,255,0.025)";
+				ctx.lineWidth = 1;
+
+				for (let x = 0; x < canvas.width; x += 50) {
+					ctx.beginPath();
+					ctx.moveTo(x, 0);
+					ctx.lineTo(x, canvas.height);
+					ctx.stroke();
+				}
+
+				for (let y = 0; y < canvas.height; y += 50) {
+					ctx.beginPath();
+					ctx.moveTo(0, y);
+					ctx.lineTo(canvas.width, y);
+					ctx.stroke();
+				}
+			}
+
+			function drawFlowers() {
+				for (const flower of flowers) {
+					const pulse =
+						1 +
+						Math.sin(flower.pulse) *
+						0.08;
+
+					ctx.save();
+
+					ctx.translate(flower.x, flower.y);
+					ctx.scale(pulse, pulse);
+
+					if (flower.golden) {
+						ctx.shadowColor = "#ffffff";
+						ctx.shadowBlur = 25;
+
+						ctx.font = "34px sans-serif";
+						ctx.textAlign = "center";
+						ctx.textBaseline = "middle";
+
+						ctx.fillText("🌟", 0, 0);
+					} else {
+						ctx.font = "29px sans-serif";
+						ctx.textAlign = "center";
+						ctx.textBaseline = "middle";
+
+						ctx.fillText("🌸", 0, 0);
+					}
+
+					ctx.restore();
+				}
+			}
+
+			function drawSpiders() {
+				for (const spider of spiders) {
+					ctx.save();
+
+					ctx.translate(spider.x, spider.y);
+
+					const wobble =
+						Math.sin(spider.wobble) * 0.1;
+
+					ctx.rotate(wobble);
+
+					if (spider.hitCooldown > 0) {
+						ctx.globalAlpha = 0.4;
+					}
+
+					ctx.font = "35px sans-serif";
+					ctx.textAlign = "center";
+					ctx.textBaseline = "middle";
+
+					ctx.fillText("🕷️", 0, 0);
+
+					ctx.restore();
+				}
+			}
+
+			function drawBee() {
+				ctx.save();
+
+				ctx.translate(bee.x, bee.y);
+
+				if (
+					keys["ArrowLeft"] ||
+					keys["a"]
+				) {
+					ctx.scale(-1, 1);
+				}
+
+				ctx.shadowColor = "#5bcefa";
+				ctx.shadowBlur = 18;
+
+				ctx.font = "42px sans-serif";
+				ctx.textAlign = "center";
+				ctx.textBaseline = "middle";
+
+				ctx.fillText("🐝", 0, 0);
+
+				ctx.restore();
+			}
+
+			function drawParticles() {
+				for (const particle of particles) {
+					ctx.save();
+
+					ctx.globalAlpha =
+						Math.max(
+							0,
+							particle.life / 0.7
+						);
+
+					ctx.fillStyle = particle.color;
+
+					ctx.beginPath();
+
+					ctx.arc(
+						particle.x,
+						particle.y,
+						3,
+						0,
+						Math.PI * 2
+					);
+
+					ctx.fill();
+
+					ctx.restore();
+				}
+			}
+
+			function drawCombo() {
+				if (combo <= 1) return;
+
+				ctx.save();
+
+				ctx.font =
+					"900 26px Inter, system-ui";
+
+				ctx.textAlign = "center";
+
+				ctx.fillStyle = "#f5a9b8";
+
+				ctx.shadowColor = "#f5a9b8";
+				ctx.shadowBlur = 15;
+
+				ctx.fillText(
+					`x${combo} COMBO`,
+					canvas.width / 2,
+					44
+				);
+
+				ctx.restore();
+			}
+
+			function draw() {
+				drawField();
+				drawFlowers();
+				drawSpiders();
+				drawParticles();
+				drawBee();
+				drawCombo();
+			}
+
+			function gameLoop(timestamp) {
+				if (!running) return;
+
+				const delta = Math.min(
+					(timestamp - lastFrameTime) / 1000,
+					0.033
+				);
+
+				lastFrameTime = timestamp;
+
+				update(delta);
+				draw();
+
+				if (running) {
+					requestAnimationFrame(gameLoop);
+				}
+			}
+
+			function idleDraw() {
+				drawField();
+
+				const demoFlowers = [
+					{ x: 160, y: 160, golden: false, pulse: 0 },
+					{ x: 700, y: 150, golden: false, pulse: 0 },
+					{ x: 280, y: 410, golden: true, pulse: 0 },
+					{ x: 650, y: 380, golden: false, pulse: 0 },
+				];
+
+				flowers = demoFlowers;
+
+				drawFlowers();
+
+				bee.x = canvas.width / 2;
+				bee.y = canvas.height / 2;
+
+				drawBee();
+
+				flowers = [];
+			}
+
+			window.addEventListener("keydown", (event) => {
+				const key = event.key.toLowerCase();
+
+				if (
+					[
+						"arrowup",
+						"arrowdown",
+						"arrowleft",
+						"arrowright",
+						"w",
+						"a",
+						"s",
+						"d",
+					].includes(key)
+				) {
+					event.preventDefault();
+				}
+
+				keys[event.key] = true;
+				keys[key] = true;
+			});
+
+			window.addEventListener("keyup", (event) => {
+				keys[event.key] = false;
+				keys[event.key.toLowerCase()] = false;
+			});
+
+			document
+				.querySelectorAll(".move-button")
+				.forEach((button) => {
+					const key = button.dataset.key;
+
+					const press = (event) => {
+						event.preventDefault();
+						keys[key] = true;
+					};
+
+					const release = (event) => {
+						event.preventDefault();
+						keys[key] = false;
+					};
+
+					button.addEventListener(
+						"pointerdown",
+						press
+					);
+
+					button.addEventListener(
+						"pointerup",
+						release
+					);
+
+					button.addEventListener(
+						"pointerleave",
+						release
+					);
+
+					button.addEventListener(
+						"pointercancel",
+						release
+					);
+				});
+
+			startButton.addEventListener(
+				"click",
+				startGame
+			);
+
+			restartButton.addEventListener(
+				"click",
+				startGame
+			);
+
+			idleDraw();
+		</script>
+	</body>
+</html>
+
+<style is:global>
+	:root {
+		font-family:
+			Inter,
+			ui-sans-serif,
+			system-ui,
+			-apple-system,
+			BlinkMacSystemFont,
+			"Segoe UI",
+			sans-serif;
+
+		color: #f8fafc;
+		background: #080c18;
+
+		--blue: #5bcefa;
+		--pink: #f5a9b8;
+		--white: #ffffff;
+		--panel: #121827;
+		--border: rgba(255, 255, 255, 0.08);
+	}
+
+	* {
+		box-sizing: border-box;
+	}
+
+	html {
+		min-height: 100%;
+		background: #080c18;
+	}
+
+	body {
+		margin: 0;
+		min-height: 100vh;
+		overflow-x: hidden;
+
+		background:
+			radial-gradient(
+				circle at 15% 5%,
+				rgba(91, 206, 250, 0.08),
+				transparent 32%
+			),
+			radial-gradient(
+				circle at 90% 90%,
+				rgba(245, 169, 184, 0.08),
+				transparent 35%
+			),
+			#080c18;
+	}
+
+	button {
+		font: inherit;
+		cursor: pointer;
+	}
+
+	a {
+		color: inherit;
+		text-decoration: none;
+	}
+
+	.hidden {
+		display: none !important;
+	}
+
+	.background-glow {
+		position: fixed;
+
+		width: 550px;
+		height: 550px;
+
+		border-radius: 999px;
+
+		filter: blur(140px);
+
+		pointer-events: none;
+
+		opacity: 0.11;
+	}
+
+	.glow-blue {
+		top: -300px;
+		left: -180px;
+
+		background: var(--blue);
+	}
+
+	.glow-pink {
+		right: -200px;
+		bottom: -300px;
+
+		background: var(--pink);
+	}
+
+	.topbar {
+		position: relative;
+		z-index: 10;
+
+		min-height: 82px;
+
+		padding: 0 42px;
+
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+
+		gap: 30px;
+
+		border-bottom: 1px solid var(--border);
+
+		background: rgba(8, 12, 24, 0.76);
+
+		backdrop-filter: blur(18px);
+	}
+
+	.brand {
+		display: flex;
+		align-items: center;
+		gap: 13px;
+	}
+
+	.bee-logo {
+		width: 46px;
+		height: 46px;
+
+		display: grid;
+		place-items: center;
+
+		border-radius: 14px;
+
+		font-size: 25px;
+
+		background:
+			linear-gradient(
+				135deg,
+				var(--blue),
+				var(--white),
+				var(--pink)
+			);
+
+		box-shadow:
+			0 10px 30px rgba(91, 206, 250, 0.13);
+	}
+
+	.brand-title {
+		font-size: 15px;
+		font-weight: 900;
+	}
+
+	.brand-subtitle {
+		margin-top: 2px;
+
+		font-size: 11px;
+		color: #81899b;
+	}
+
+	.site-nav {
+		display: flex;
+		align-items: center;
+
+		padding: 4px;
+
+		border: 1px solid var(--border);
+		border-radius: 13px;
+
+		background: rgba(255, 255, 255, 0.025);
+	}
+
+	.site-nav a {
+		padding: 9px 14px;
+
+		border-radius: 9px;
+
+		font-size: 12px;
+		font-weight: 800;
+
+		color: #7e879a;
+	}
+
+	.site-nav a:hover {
+		color: white;
+	}
+
+	.site-nav a.active {
+		color: white;
+
+		background:
+			linear-gradient(
+				110deg,
+				rgba(91, 206, 250, 0.19),
+				rgba(245, 169, 184, 0.19)
+			);
+	}
+
+	main {
+		position: relative;
+		z-index: 1;
+
+		width: min(1280px, calc(100% - 40px));
+
+		margin: 0 auto;
+	}
+
+	.hero {
+		max-width: 760px;
+
+		padding: 70px 0 45px;
+	}
+
+	.eyebrow,
+	.game-kicker,
+	.game-over-label,
+	.tips-label {
+		font-size: 11px;
+		font-weight: 900;
+		letter-spacing: 0.16em;
+
+		color: var(--pink);
+	}
+
+	.hero h1 {
+		margin: 7px 0 0;
+
+		font-size: clamp(46px, 6vw, 76px);
+		line-height: 1;
+		letter-spacing: -0.065em;
+
+		font-weight: 900;
+	}
+
+	.hero h1 span {
+		background:
+			linear-gradient(
+				90deg,
+				var(--blue),
+				var(--white),
+				var(--pink)
+			);
+
+		-webkit-background-clip: text;
+		background-clip: text;
+
+		color: transparent;
+	}
+
+	.hero p {
+		max-width: 660px;
+
+		margin: 22px 0 0;
+
+		font-size: 15px;
+		line-height: 1.7;
+
+		color: #8992a5;
+	}
+
+	.game-layout {
+		display: grid;
+
+		grid-template-columns:
+			minmax(0, 1fr)
+			340px;
+
+		gap: 20px;
+
+		align-items: start;
+	}
+
+	.game-card,
+	.stats-card {
+		border: 1px solid var(--border);
+		border-radius: 24px;
+
+		background:
+			linear-gradient(
+				145deg,
+				rgba(255, 255, 255, 0.045),
+				rgba(255, 255, 255, 0.018)
+			);
+
+		box-shadow:
+			0 25px 70px rgba(0, 0, 0, 0.25),
+			inset 0 1px rgba(255, 255, 255, 0.04);
+	}
+
+	.game-card {
+		padding: 24px;
+	}
+
+	.stats-card {
+		padding: 23px;
+
+		position: sticky;
+		top: 20px;
+	}
+
+	.game-header,
+	.stats-title {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+
+		gap: 20px;
+
+		margin-bottom: 19px;
+	}
+
+	.game-header h2,
+	.stats-title h2 {
+		margin: 5px 0 0;
+
+		font-size: 21px;
+		letter-spacing: -0.035em;
+	}
+
+	.status-pill {
+		padding: 7px 11px;
+
+		border-radius: 999px;
+
+		border: 1px solid var(--border);
+
+		background: rgba(255, 255, 255, 0.035);
+
+		font-size: 11px;
+		font-weight: 800;
+
+		color: #868fa1;
+	}
+
+	.status-pill.running {
+		color: var(--blue);
+
+		border-color: rgba(91, 206, 250, 0.23);
+
+		background: rgba(91, 206, 250, 0.07);
+	}
+
+	.canvas-wrapper {
+		position: relative;
+
+		width: 100%;
+
+		overflow: hidden;
+
+		border: 1px solid rgba(255, 255, 255, 0.07);
+		border-radius: 19px;
+
+		background: #0e1420;
+	}
+
+	canvas {
+		display: block;
+
+		width: 100%;
+		height: auto;
+
+		aspect-ratio: 900 / 560;
+	}
+
+	.game-overlay {
+		position: absolute;
+		inset: 0;
+
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+
+		padding: 30px;
+
+		text-align: center;
+
+		background:
+			radial-gradient(
+				circle at center,
+				rgba(20, 28, 44, 0.76),
+				rgba(8, 12, 24, 0.94)
+			);
+
+		backdrop-filter: blur(5px);
+	}
+
+	.overlay-bee {
+		font-size: 52px;
+
+		filter:
+			drop-shadow(
+				0 12px 25px
+				rgba(91, 206, 250, 0.2)
+			);
+	}
+
+	.game-overlay h2 {
+		margin: 14px 0 6px;
+
+		font-size: 31px;
+		letter-spacing: -0.05em;
+	}
+
+	.game-overlay p {
+		max-width: 390px;
+
+		margin: 0;
+
+		font-size: 13px;
+		line-height: 1.6;
+
+		color: #8992a5;
+	}
+
+	.control-hint {
+		margin: 20px 0;
+
+		display: flex;
+		align-items: center;
+		gap: 8px;
+
+		font-size: 11px;
+		color: #737d90;
+	}
+
+	.control-hint span:nth-child(1),
+	.control-hint span:nth-child(3) {
+		padding: 7px 10px;
+
+		border: 1px solid var(--border);
+		border-radius: 8px;
+
+		color: #dce3ed;
+
+		background: rgba(255, 255, 255, 0.045);
+	}
+
+	.game-overlay button {
+		min-width: 175px;
+		height: 48px;
+
+		padding: 0 20px;
+
+		border: 0;
+		border-radius: 13px;
+
+		font-weight: 900;
+
+		color: #0a101b;
+
+		background:
+			linear-gradient(
+				100deg,
+				var(--blue),
+				var(--white),
+				var(--pink)
+			);
+
+		transition:
+			transform 150ms ease,
+			box-shadow 150ms ease;
+	}
+
+	.game-overlay button:hover {
+		transform: translateY(-2px);
+
+		box-shadow:
+			0 14px 34px
+			rgba(91, 206, 250, 0.15);
+	}
+
+	.game-over-label {
+		margin-top: 10px;
+	}
+
+	.stat-grid {
+		display: grid;
+
+		grid-template-columns: 1fr 1fr;
+
+		gap: 9px;
+	}
+
+	.stat-box {
+		padding: 15px;
+
+		border: 1px solid rgba(255, 255, 255, 0.06);
+		border-radius: 14px;
+
+		background: rgba(0, 0, 0, 0.15);
+	}
+
+	.stat-box span {
+		display: block;
+
+		font-size: 10px;
+		font-weight: 800;
+
+		color: #747d90;
+	}
+
+	.stat-box strong {
+		display: block;
+
+		margin-top: 4px;
+
+		font-size: 22px;
+		letter-spacing: -0.04em;
+
+		color: var(--blue);
+	}
+
+	.stat-box:nth-child(even) strong {
+		color: var(--pink);
+	}
+
+	.legend {
+		margin-top: 21px;
+	}
+
+	.legend h3 {
+		margin: 0 0 11px;
+
+		font-size: 12px;
+	}
+
+	.legend-row {
+		padding: 10px 0;
+
+		display: flex;
+		align-items: center;
+		gap: 11px;
+
+		border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+	}
+
+	.legend-row:last-child {
+		border-bottom: 0;
+	}
+
+	.legend-icon {
+		width: 37px;
+		height: 37px;
+
+		display: grid;
+		place-items: center;
+
+		border-radius: 10px;
+
+		background: rgba(255, 255, 255, 0.035);
+	}
+
+	.legend-row strong {
+		display: block;
+
+		font-size: 11px;
+	}
+
+	.legend-row span {
+		display: block;
+
+		margin-top: 2px;
+
+		font-size: 9px;
+
+		color: #717a8d;
+	}
+
+	.tips {
+		margin-top: 20px;
+
+		padding: 15px;
+
+		border: 1px solid rgba(245, 169, 184, 0.12);
+		border-radius: 14px;
+
+		background:
+			linear-gradient(
+				145deg,
+				rgba(91, 206, 250, 0.055),
+				rgba(245, 169, 184, 0.055)
+			);
+	}
+
+	.tips-label {
+		font-size: 9px;
+	}
+
+	.tips p {
+		margin: 7px 0 0;
+
+		font-size: 10px;
+		line-height: 1.65;
+
+		color: #8a93a5;
+	}
+
+	.tips strong {
+		color: white;
+	}
+
+	.mobile-controls {
+		display: none;
+
+		margin-top: 16px;
+	}
+
+	.mobile-row {
+		display: flex;
+		justify-content: center;
+
+		gap: 9px;
+
+		margin-top: 8px;
+	}
+
+	.move-button {
+		width: 58px;
+		height: 48px;
+
+		border: 1px solid var(--border);
+		border-radius: 12px;
+
+		color: white;
+
+		background:
+			linear-gradient(
+				145deg,
+				rgba(91, 206, 250, 0.09),
+				rgba(245, 169, 184, 0.09)
+			);
+
+		font-size: 20px;
+		font-weight: 900;
+
+		touch-action: none;
+	}
+
+	footer {
+		padding: 42px 0 55px;
+
+		text-align: center;
+
+		font-size: 11px;
+
+		color: #5e6779;
+	}
+
+	footer strong {
+		color: #7f899a;
+	}
+
+	@media (max-width: 950px) {
+		.topbar {
+			padding: 0 20px;
+		}
+
+		main {
+			width: min(
+				760px,
+				calc(100% - 28px)
+			);
+		}
+
+		.game-layout {
+			grid-template-columns: 1fr;
+		}
+
+		.stats-card {
+			position: static;
+		}
+	}
+
+	@media (max-width: 650px) {
+		.topbar {
+			padding: 12px 16px;
+
+			align-items: flex-start;
+			flex-direction: column;
+
+			gap: 10px;
+		}
+
+		.site-nav {
+			width: 100%;
+		}
+
+		.site-nav a {
+			flex: 1;
+
+			text-align: center;
+		}
+
+		.hero {
+			padding: 45px 0 30px;
+		}
+
+		.hero h1 {
+			font-size: 48px;
+		}
+
+		.game-card {
+			padding: 14px;
+		}
+
+		.stats-card {
+			padding: 18px;
+		}
+
+		.mobile-controls {
+			display: block;
+		}
+
+		.game-overlay h2 {
+			font-size: 25px;
+		}
+
+		.control-hint {
+			display: none;
+		}
+	}
+</style>
