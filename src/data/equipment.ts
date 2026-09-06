@@ -682,8 +682,8 @@ export const equipmentData: Record<string, EquipmentItem> = {
 	},
 	// Painter
 	"Canvas Helmet" : {
-		shop: "Painter"
-		type: "Gear"
+		shop: "Painter",
+		type: "Gear",
 		ingredients: {
 			Honey: 125_000_000_000_000n,
 			"Foaming Carrot Juice": 2n,
