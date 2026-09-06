@@ -1,4 +1,5 @@
 ---
+import { craftableCount, equipmentCount } from "../data/catalog";
 ---
 
 <!doctype html>
@@ -6,10 +7,11 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
-		<meta
-			name="description"
-			content="Raw crafting ingredient calculator for The Majestic Bees on Roblox."
-		/>
+		<meta name="description" content="Raw crafting ingredient and equipment cost calculator for The Majestic Bees on Roblox." />
+		<meta name="theme-color" content="#0b1020" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 		<title>The Majestic Bees Crafting Calculator</title>
 	</head>
 
@@ -20,1957 +22,1626 @@
 		<header class="topbar">
 			<div class="brand">
 				<div class="bee-logo">🐝</div>
-
 				<div>
 					<div class="brand-title">The Majestic Bees</div>
 					<div class="brand-subtitle">Crafting Calculator</div>
 				</div>
 			</div>
-
 			<div class="recipe-count">
-				<span id="recipeCount">27</span> recipes
+				<span>{craftableCount}</span> craftables
+				<span class="count-divider">•</span>
+				<span>{equipmentCount}</span> equipment
 			</div>
 		</header>
 
 		<main>
 			<section class="hero">
 				<div class="eyebrow">TMB CRAFTING TOOL</div>
-
 				<h1>
 					Calculate your
 					<span>raw ingredients.</span>
 				</h1>
-
 				<p>
-					Add anything you want to craft and the calculator will recursively
-					break every recipe down into its true base materials.
+					Add Mixer recipes, equipment, bags, tools, planters, or raw materials.
+					The calculator recursively breaks every craft down into one combined base-material tally.
 				</p>
 			</section>
 
-			<div class="calculator-layout">
-				<section class="panel builder-panel">
-					<div class="panel-heading">
-						<div>
-							<p class="panel-kicker">CRAFTING LIST</p>
-							<h2>What are you crafting?</h2>
-						</div>
-
-						<button id="clearButton" class="text-button" type="button">
-							Clear all
-						</button>
-					</div>
-
-					<div class="add-item-box">
-						<label for="itemSearch">Item</label>
-
-						<div class="search-wrapper">
-							<input
-								id="itemSearch"
-								type="text"
-								placeholder="Search for an item..."
-								autocomplete="off"
-							/>
-
-							<div id="searchResults" class="search-results hidden"></div>
-						</div>
-
-						<div class="quantity-area">
-							<div class="quantity-field">
-								<label for="quantityInput">Quantity</label>
-
-								<div class="quantity-control">
-									<button id="minusButton" type="button">−</button>
-
-									<input
-										id="quantityInput"
-										type="number"
-										min="1"
-										step="1"
-										value="1"
-									/>
-
-									<button id="plusButton" type="button">+</button>
-								</div>
-							</div>
-
-							<button id="addButton" class="primary-button" type="button">
-								<span>+</span>
-								Add item
-							</button>
-						</div>
-					</div>
-
-					<div id="emptyCraftList" class="empty-state">
-						<div class="empty-icon">🍯</div>
-
-						<div>
-							<strong>Your crafting list is empty</strong>
-							<p>Search for an item above and add it to begin.</p>
-						</div>
-					</div>
-
-					<div id="craftList" class="craft-list"></div>
-
-					<button id="calculateButton" class="calculate-button" type="button">
-						<span>Calculate Materials</span>
-						<span class="arrow">→</span>
-					</button>
-				</section>
-
-				<section class="panel results-panel">
-					<div class="panel-heading results-heading">
-						<div>
-							<p class="panel-kicker">RESULTS</p>
-							<h2>Materials needed</h2>
-						</div>
-
-						<button
-							id="copyButton"
-							class="copy-button"
-							type="button"
-							disabled
-						>
-							Copy
-						</button>
-					</div>
-
-					<div class="tabs">
-						<button
-							class="tab active"
-							type="button"
-							data-tab="raw"
-						>
-							Raw Materials
-						</button>
-
-						<button
-							class="tab"
-							type="button"
-							data-tab="crafts"
-						>
-							Crafting Breakdown
-						</button>
-					</div>
-
-					<div id="resultEmpty" class="result-empty">
-						<div class="result-empty-icon">🧪</div>
-						<h3>Nothing calculated yet</h3>
-						<p>
-							Add some recipes and hit
-							<strong>Calculate Materials</strong>.
-						</p>
-					</div>
-
-					<div id="rawResults" class="results-list hidden"></div>
-					<div id="craftResults" class="results-list hidden"></div>
-				</section>
+<div class="calculator-layout">
+	<section class="panel builder-panel">
+		<div class="panel-heading">
+			<div>
+				<p class="panel-kicker">CRAFTING LIST</p>
+				<h2>What are you crafting?</h2>
 			</div>
 
-			<footer>
+			<button id="clearButton" class="text-button" type="button">
+				Clear all
+			</button>
+		</div>
+
+		<div class="add-item-box">
+			<div class="item-filter-tabs" aria-label="Item type">
+				<button
+					class="item-filter active"
+					type="button"
+					data-filter="all"
+				>
+					All
+				</button>
+				<button
+					class="item-filter"
+					type="button"
+					data-filter="equipment"
+				>
+					Equipment
+				</button>
+				<button
+					class="item-filter"
+					type="button"
+					data-filter="mixer"
+				>
+					Mixer
+				</button>
+				<button
+					class="item-filter"
+					type="button"
+					data-filter="raw"
+				>
+					Raw Materials
+				</button>
+			</div>
+
+			<label for="itemSearch">Item</label>
+
+			<div class="search-wrapper">
+				<input
+					id="itemSearch"
+					type="text"
+					placeholder="Search for an item, shop, or type..."
+					autocomplete="off"
+				/>
+
+				<div id="searchResults" class="search-results hidden"></div>
+			</div>
+
+			<div class="quantity-area">
+				<div class="quantity-field">
+					<label for="quantityInput">Quantity</label>
+
+					<div class="quantity-control">
+						<button id="minusButton" type="button">−</button>
+
+						<input
+							id="quantityInput"
+							type="number"
+							min="1"
+							step="1"
+							value="1"
+						/>
+
+						<button id="plusButton" type="button">+</button>
+					</div>
+				</div>
+
+				<button id="addButton" class="primary-button" type="button">
+					<span>+</span>
+					Add item
+				</button>
+			</div>
+		</div>
+
+		<div id="emptyCraftList" class="empty-state">
+			<div class="empty-icon">🍯</div>
+
+			<div>
+				<strong>Your crafting list is empty</strong>
 				<p>
-					Fan-made calculator for
-					<strong>The Majestic Bees</strong> on Roblox.
+					Choose Equipment, Mixer, Raw Materials, or All,
+					then add whatever you need.
 				</p>
+			</div>
+		</div>
+
+		<div id="craftList" class="craft-list"></div>
+
+		<button id="calculateButton" class="calculate-button" type="button">
+			<span>Calculate Materials</span>
+			<span class="arrow">→</span>
+		</button>
+	</section>
+
+	<section class="panel results-panel">
+		<div class="panel-heading results-heading">
+			<div>
+				<p class="panel-kicker">RESULTS</p>
+				<h2>Materials needed</h2>
+			</div>
+
+			<button
+				id="copyButton"
+				class="copy-button"
+				type="button"
+				disabled
+			>
+				Copy
+			</button>
+		</div>
+
+		<div class="tabs">
+			<button
+				class="tab active"
+				type="button"
+				data-tab="raw"
+			>
+				Raw Materials
+			</button>
+
+			<button
+				class="tab"
+				type="button"
+				data-tab="crafts"
+			>
+				Crafting Breakdown
+			</button>
+		</div>
+
+		<div id="resultEmpty" class="result-empty">
+			<div class="result-empty-icon">🧪</div>
+			<h3>Nothing calculated yet</h3>
+			<p>
+				Add some items and hit
+				<strong>Calculate Materials</strong>.
+			</p>
+		</div>
+
+		<div id="rawResults" class="results-list hidden"></div>
+		<div id="craftResults" class="results-list hidden"></div>
+	</section>
+</div>
+
+
+			<footer>
+				<p>Fan-made calculator for <strong>The Majestic Bees</strong> on Roblox.</p>
 			</footer>
 		</main>
 
-		<script>
-			/*
-				==================================================
-				RECIPE DATABASE
-				==================================================
+<script>
+	import {
+		allItemNames,
+		getItemCategoryLabel,
+		getItemFilterType,
+		matchesItemFilter,
+	} from "../data/catalog";
+	import type { CraftRequest, IngredientMap, ItemFilter } from "../data/types";
+	import { calculateMaterials } from "../lib/calculator";
+	import { formatCompact, formatFull } from "../lib/format";
+	import { getItemIcon } from "../lib/icons";
 
-				Anything that DOES NOT have a recipe here is treated
-				as a raw/base ingredient.
+	function requiredElement<T extends HTMLElement>(
+		id: string,
+	): T {
+		const element = document.getElementById(id);
 
-				All numbers use BigInt so gigantic Honey values stay exact.
-			*/
+		if (!element) {
+			throw new Error(`Missing required element #${id}`);
+		}
 
-			const recipes = {
-				"Treat": {
-					"Honey": 10_000n,
-				},
+		return element as T;
+	}
 
-				"Converter": {
-					"Honey": 500_000n,
-					"Royal Jelly": 25n,
-					"Strawberry": 50n,
-					"Blueberry": 50n,
-					"Seed": 50n,
-					"Pine Cone": 50n,
-				},
+	const craftingList: CraftRequest[] = [];
 
-				"Rare Starflower": {
-					"Honey": 500_000n,
-					"Starflower": 2n,
-					"Royal Jelly": 10n,
-				},
+	let selectedItem = "";
+	let activeItemFilter: ItemFilter = "all";
+	let latestRawTotals: IngredientMap = {};
 
-				"Epic Starflower": {
-					"Honey": 1_000_000n,
-					"Rare Starflower": 3n,
-					"Royal Jelly": 20n,
-				},
+	const itemSearch =
+		requiredElement<HTMLInputElement>("itemSearch");
+	const searchResults =
+		requiredElement<HTMLDivElement>("searchResults");
+	const quantityInput =
+		requiredElement<HTMLInputElement>("quantityInput");
 
-				"Legendary Starflower": {
-					"Honey": 2_500_000n,
-					"Epic Starflower": 4n,
-					"Royal Jelly": 50n,
-				},
+	const addButton =
+		requiredElement<HTMLButtonElement>("addButton");
+	const minusButton =
+		requiredElement<HTMLButtonElement>("minusButton");
+	const plusButton =
+		requiredElement<HTMLButtonElement>("plusButton");
 
-				"Mythic Starflower": {
-					"Honey": 10_000_000n,
-					"Legendary Starflower": 5n,
-					"Royal Jelly": 250n,
-				},
+	const craftListElement =
+		requiredElement<HTMLDivElement>("craftList");
+	const emptyCraftList =
+		requiredElement<HTMLDivElement>("emptyCraftList");
 
-				"Exp Essence": {
-					"Honey": 10_000n,
-					"Exp Orb": 5n,
-				},
+	const calculateButton =
+		requiredElement<HTMLButtonElement>("calculateButton");
+	const clearButton =
+		requiredElement<HTMLButtonElement>("clearButton");
 
-				"Night Bell": {
-					"Honey": 5_000_000n,
-					"Lunar Treat": 250n,
-					"Shiny Jelly": 3n,
-				},
+	const rawResults =
+		requiredElement<HTMLDivElement>("rawResults");
+	const craftResults =
+		requiredElement<HTMLDivElement>("craftResults");
+	const resultEmpty =
+		requiredElement<HTMLDivElement>("resultEmpty");
 
-				"Lunar Ticket": {
-					"Ticket": 200n,
-				},
+	const copyButton =
+		requiredElement<HTMLButtonElement>("copyButton");
 
-				"Singularity Essence": {
-					"Honey": 250_000_000n,
-					"Exp Essence": 250n,
-					"Lunar Essence": 250n,
-					"Wind Essence": 250n,
-					"Water Essence": 250n,
-					"Fire Essence": 250n,
-					"Lunar Shard": 3n,
-				},
+	const itemFilterButtons =
+		document.querySelectorAll<HTMLButtonElement>(".item-filter");
 
-				"Dice": {
-					"Honey": 5_000_000n,
-					"Lunar Essence": 10n,
-					"Exp Essence": 5n,
-					"Royal Jelly": 5n,
-				},
+	const resultTabs =
+		document.querySelectorAll<HTMLButtonElement>(".tab");
 
-				"Double Dice": {
-					"Honey": 15_000_000n,
-					"Lunar Essence": 20n,
-					"Exp Essence": 15n,
-					"Dice": 3n,
-				},
+	function getVisibleItems(query = ""): string[] {
+		const normalized = query.trim().toLowerCase();
 
-				"Triple Dice": {
-					"Honey": 50_000_000n,
-					"Lunar Essence": 40n,
-					"Exp Essence": 30n,
-					"Double Dice": 3n,
-				},
+		return allItemNames.filter((item) => {
+			if (!matchesItemFilter(item, activeItemFilter)) {
+				return false;
+			}
 
-				"Glitter": {
-					"Honey": 10_000_000n,
-					"Lunar Essence": 20n,
-					"Exp Essence": 15n,
-					"Dice": 1n,
-					"Shiny Jelly": 1n,
-				},
+			const category = getItemCategoryLabel(item).toLowerCase();
 
-				"Majestic Cocktail": {
-					"Honey": 25_000_000n,
-					"Moon Extract": 2n,
-					"Bamboo Flask": 3n,
-					"Strawberry Extract": 7n,
-					"Blueberry Extract": 7n,
-					"Cone Extract": 7n,
-					"Seed Oil": 7n,
-					"Shiny Jelly": 2n,
-				},
+			return (
+				item.toLowerCase().includes(normalized) ||
+				category.includes(normalized)
+			);
+		});
+	}
 
-				"Moon Extract": {
-					"Honey": 1_000_000n,
-					"Lunar Treat": 50n,
-					"Royal Jelly": 50n,
-				},
+	function showSearchResults(query = ""): void {
+		const matches = getVisibleItems(query);
 
-				"Bamboo Flask": {
-					"Honey": 250_000n,
-					"Bamboo": 50n,
-					"Royal Jelly": 10n,
-				},
+		searchResults.innerHTML = "";
 
-				"Cone Extract": {
-					"Honey": 25_000n,
-					"Pine Cone": 25n,
-					"Wind Essence": 15n,
-					"Royal Jelly": 5n,
-				},
+		if (matches.length === 0) {
+			const empty = document.createElement("div");
+			empty.className = "search-empty";
+			empty.textContent = "No matching items";
+			searchResults.appendChild(empty);
+		} else {
+			for (const item of matches) {
+				const button = document.createElement("button");
+				button.type = "button";
+				button.className = "search-option";
 
-				"Strawberry Extract": {
-					"Honey": 25_000n,
-					"Strawberry": 25n,
-					"Fire Essence": 15n,
-					"Royal Jelly": 5n,
-				},
+				const name = document.createElement("span");
+				name.className = "search-option-name";
+				name.textContent = item;
 
-				"Blueberry Extract": {
-					"Honey": 25_000n,
-					"Blueberry": 25n,
-					"Water Essence": 15n,
-					"Royal Jelly": 5n,
-				},
+				const badge = document.createElement("span");
+				badge.className =
+					`search-option-badge ${getItemFilterType(item)}`;
+				badge.textContent = getItemCategoryLabel(item);
 
-				"Seed Oil": {
-					"Honey": 50_000n,
-					"Seed": 25n,
-					"Royal Jelly": 5n,
-				},
+				button.appendChild(name);
+				button.appendChild(badge);
 
-				"Shiny Jelly": {
-					"Honey": 5_000_000n,
-					"Lunar Treat": 10n,
-					"Royal Jelly": 150n,
-				},
+				button.addEventListener("click", () => {
+					selectedItem = item;
+					itemSearch.value = item;
+					searchResults.classList.add("hidden");
+				});
 
-				"Bamboo Boba Tea": {
-					"Honey": 1_000_000n,
-					"Bamboo": 75n,
-					"Seed": 50n,
-					"Pine Cone": 50n,
-					"Lunar Treat": 50n,
-					"Glitter": 1n,
-				},
+				searchResults.appendChild(button);
+			}
+		}
 
-				"Lunar Cocktail": {
-					"Honey": 25_000_000_000n,
-					"Lunar Essence": 250n,
-					"Moon Extract": 5n,
-					"Shiny Jelly": 5n,
-					"Lunar Shard": 1n,
-				},
+		searchResults.classList.remove("hidden");
+	}
 
-				"Pot'O'Vegetation": {
-					"Honey": 250_000_000_000_000n,
-					"Foaming Carrot Juice": 2n,
-					"Golden Carrot": 1n,
-					"Golden Apple": 1n,
-					"Gardener's Bundle": 5n,
-					"Singularity Essence": 1n,
-				},
+	itemFilterButtons.forEach((button) => {
+		button.addEventListener("click", () => {
+			activeItemFilter =
+				(button.dataset.filter as ItemFilter | undefined) ??
+				"all";
 
-				"Foaming Carrot Juice": {
-					"Honey": 12_000_000_000_000n,
-					"Carrot Treat": 500n,
-					"Magic Carrot": 12n,
-					"Majestic Cocktail": 3n,
-					"Bamboo Boba Tea": 5n,
-					"Triple Dice": 3n,
-				},
+			itemFilterButtons.forEach((otherButton) => {
+				otherButton.classList.toggle(
+					"active",
+					otherButton === button,
+				);
+			});
 
-				"Rich Apple Juice": {
-					"Honey": 5_000_000_000_000n,
-					"Apple Treat": 250n,
-					"Strawberry Extract": 35n,
-					"Converter": 20n,
-					"Moon Extract": 3n,
-					"Dice": 3n,
-				},
-			};
+			selectedItem = "";
+			itemSearch.value = "";
+			showSearchResults("");
+			itemSearch.focus();
+		});
+	});
 
-			const itemNames = Object.keys(recipes).sort((a, b) =>
-				a.localeCompare(b)
+	itemSearch.addEventListener("focus", () => {
+		showSearchResults(itemSearch.value);
+	});
+
+	itemSearch.addEventListener("input", () => {
+		selectedItem = "";
+
+		const exactMatch = getVisibleItems(itemSearch.value).find(
+			(item) =>
+				item.toLowerCase() ===
+				itemSearch.value.trim().toLowerCase(),
+		);
+
+		if (exactMatch) {
+			selectedItem = exactMatch;
+		}
+
+		showSearchResults(itemSearch.value);
+	});
+
+	document.addEventListener("click", (event) => {
+		const target = event.target;
+
+		if (
+			target instanceof Element &&
+			!target.closest(".search-wrapper") &&
+			!target.closest(".item-filter-tabs")
+		) {
+			searchResults.classList.add("hidden");
+		}
+	});
+
+	function getQuantity(): bigint {
+		const value = quantityInput.value.trim();
+
+		try {
+			const quantity = BigInt(value || "1");
+			return quantity >= 1n ? quantity : 1n;
+		} catch {
+			return 1n;
+		}
+	}
+
+	minusButton.addEventListener("click", () => {
+		const next = getQuantity() - 1n;
+		quantityInput.value =
+			(next < 1n ? 1n : next).toString();
+	});
+
+	plusButton.addEventListener("click", () => {
+		quantityInput.value = (getQuantity() + 1n).toString();
+	});
+
+	function addSelectedItem(): void {
+		if (!selectedItem) {
+			const typed = itemSearch.value.trim();
+
+			const exactMatch = getVisibleItems(typed).find(
+				(item) =>
+					item.toLowerCase() === typed.toLowerCase(),
 			);
 
-			const craftingList = [];
-
-			let selectedItem = "";
-			let latestRawTotals = {};
-			let latestCraftTotals = {};
-
-			const itemSearch = document.getElementById("itemSearch");
-			const searchResults = document.getElementById("searchResults");
-			const quantityInput = document.getElementById("quantityInput");
-
-			const addButton = document.getElementById("addButton");
-			const minusButton = document.getElementById("minusButton");
-			const plusButton = document.getElementById("plusButton");
-
-			const craftListElement = document.getElementById("craftList");
-			const emptyCraftList = document.getElementById("emptyCraftList");
-
-			const calculateButton = document.getElementById("calculateButton");
-			const clearButton = document.getElementById("clearButton");
-
-			const rawResults = document.getElementById("rawResults");
-			const craftResults = document.getElementById("craftResults");
-			const resultEmpty = document.getElementById("resultEmpty");
-
-			const copyButton = document.getElementById("copyButton");
-
-			const recipeCount = document.getElementById("recipeCount");
-
-			recipeCount.textContent = itemNames.length.toString();
-
-			/*
-				==================================================
-				SEARCH
-				==================================================
-			*/
-
-			function showSearchResults(query = "") {
-				const normalized = query.trim().toLowerCase();
-
-				const matches = itemNames.filter((item) =>
-					item.toLowerCase().includes(normalized)
-				);
-
-				searchResults.innerHTML = "";
-
-				if (matches.length === 0) {
-					const empty = document.createElement("div");
-					empty.className = "search-empty";
-					empty.textContent = "No matching recipes";
-					searchResults.appendChild(empty);
-				} else {
-					matches.forEach((item) => {
-						const button = document.createElement("button");
-						button.type = "button";
-						button.className = "search-option";
-						button.textContent = item;
-
-						button.addEventListener("click", () => {
-							selectedItem = item;
-							itemSearch.value = item;
-							searchResults.classList.add("hidden");
-						});
-
-						searchResults.appendChild(button);
-					});
-				}
-
-				searchResults.classList.remove("hidden");
+			if (exactMatch) {
+				selectedItem = exactMatch;
 			}
+		}
 
-			itemSearch.addEventListener("focus", () => {
-				showSearchResults(itemSearch.value);
-			});
+		if (!selectedItem) {
+			itemSearch.focus();
+			showSearchResults(itemSearch.value);
+			return;
+		}
 
-			itemSearch.addEventListener("input", () => {
-				selectedItem = "";
+		const quantity = getQuantity();
 
-				const exactMatch = itemNames.find(
-					(item) =>
-						item.toLowerCase() === itemSearch.value.trim().toLowerCase()
-				);
+		const existing = craftingList.find(
+			(entry) => entry.item === selectedItem,
+		);
 
-				if (exactMatch) {
-					selectedItem = exactMatch;
-				}
-
-				showSearchResults(itemSearch.value);
-			});
-
-			document.addEventListener("click", (event) => {
-				if (
-					!event.target.closest(".search-wrapper")
-				) {
-					searchResults.classList.add("hidden");
-				}
-			});
-
-			/*
-				==================================================
-				QUANTITY
-				==================================================
-			*/
-
-			function getQuantity() {
-				const parsed = parseInt(quantityInput.value, 10);
-
-				if (!Number.isFinite(parsed) || parsed < 1) {
-					return 1;
-				}
-
-				return Math.floor(parsed);
-			}
-
-			minusButton.addEventListener("click", () => {
-				quantityInput.value = Math.max(1, getQuantity() - 1).toString();
-			});
-
-			plusButton.addEventListener("click", () => {
-				quantityInput.value = (getQuantity() + 1).toString();
-			});
-
-			/*
-				==================================================
-				CRAFT LIST
-				==================================================
-			*/
-
-			function addSelectedItem() {
-				if (!selectedItem) {
-					const typed = itemSearch.value.trim();
-
-					const exactMatch = itemNames.find(
-						(item) => item.toLowerCase() === typed.toLowerCase()
-					);
-
-					if (exactMatch) {
-						selectedItem = exactMatch;
-					}
-				}
-
-				if (!selectedItem) {
-					itemSearch.focus();
-					showSearchResults(itemSearch.value);
-					return;
-				}
-
-				const quantity = BigInt(getQuantity());
-
-				const existing = craftingList.find(
-					(entry) => entry.item === selectedItem
-				);
-
-				if (existing) {
-					existing.quantity += quantity;
-				} else {
-					craftingList.push({
-						item: selectedItem,
-						quantity,
-					});
-				}
-
-				selectedItem = "";
-				itemSearch.value = "";
-				quantityInput.value = "1";
-
-				renderCraftList();
-			}
-
-			addButton.addEventListener("click", addSelectedItem);
-
-			itemSearch.addEventListener("keydown", (event) => {
-				if (event.key === "Enter") {
-					event.preventDefault();
-					addSelectedItem();
-				}
-			});
-
-			function renderCraftList() {
-				craftListElement.innerHTML = "";
-
-				emptyCraftList.classList.toggle(
-					"hidden",
-					craftingList.length > 0
-				);
-
-				craftingList.forEach((entry, index) => {
-					const row = document.createElement("div");
-					row.className = "craft-row";
-
-					const left = document.createElement("div");
-					left.className = "craft-row-left";
-
-					const icon = document.createElement("div");
-					icon.className = "item-icon";
-					icon.textContent = getItemEmoji(entry.item);
-
-					const textWrapper = document.createElement("div");
-
-					const name = document.createElement("strong");
-					name.textContent = entry.item;
-
-					const sub = document.createElement("span");
-					sub.textContent = "Crafting recipe";
-
-					textWrapper.appendChild(name);
-					textWrapper.appendChild(sub);
-
-					left.appendChild(icon);
-					left.appendChild(textWrapper);
-
-					const right = document.createElement("div");
-					right.className = "craft-row-right";
-
-					const quantity = document.createElement("span");
-					quantity.className = "craft-quantity";
-					quantity.textContent = `×${formatFull(entry.quantity)}`;
-
-					const remove = document.createElement("button");
-					remove.type = "button";
-					remove.className = "remove-button";
-					remove.textContent = "×";
-					remove.setAttribute("aria-label", `Remove ${entry.item}`);
-
-					remove.addEventListener("click", () => {
-						craftingList.splice(index, 1);
-						renderCraftList();
-					});
-
-					right.appendChild(quantity);
-					right.appendChild(remove);
-
-					row.appendChild(left);
-					row.appendChild(right);
-
-					craftListElement.appendChild(row);
-				});
-			}
-
-			clearButton.addEventListener("click", () => {
-				craftingList.length = 0;
-				renderCraftList();
-				clearResults();
-			});
-
-			/*
-				==================================================
-				RECURSIVE CALCULATOR
-				==================================================
-			*/
-
-			function addToTotals(totals, item, amount) {
-				if (!totals[item]) {
-					totals[item] = 0n;
-				}
-
-				totals[item] += amount;
-			}
-
-			function expandRecipe(
-				item,
+		if (existing) {
+			existing.quantity += quantity;
+		} else {
+			craftingList.push({
+				item: selectedItem,
 				quantity,
-				rawTotals,
-				craftTotals,
-				path = []
-			) {
-				/*
-					This also protects us if we accidentally create
-					a circular recipe later.
-				*/
-				if (path.includes(item)) {
-					console.error(
-						`Circular recipe detected: ${[
-							...path,
-							item,
-						].join(" -> ")}`
-					);
+			});
+		}
 
-					return;
-				}
+		selectedItem = "";
+		itemSearch.value = "";
+		quantityInput.value = "1";
 
-				const recipe = recipes[item];
+		renderCraftList();
+	}
 
-				/*
-					If the item has no recipe, it is a RAW MATERIAL.
-				*/
-				if (!recipe) {
-					addToTotals(rawTotals, item, quantity);
-					return;
-				}
+	addButton.addEventListener("click", addSelectedItem);
 
-				/*
-					Record this as something that must be crafted.
-				*/
-				addToTotals(craftTotals, item, quantity);
+	itemSearch.addEventListener("keydown", (event) => {
+		if (event.key === "Enter") {
+			event.preventDefault();
+			addSelectedItem();
+		}
+	});
 
-				const nextPath = [...path, item];
+	function renderCraftList(): void {
+		craftListElement.innerHTML = "";
 
-				for (const [ingredient, amount] of Object.entries(recipe)) {
-					expandRecipe(
-						ingredient,
-						quantity * amount,
-						rawTotals,
-						craftTotals,
-						nextPath
-					);
-				}
-			}
+		emptyCraftList.classList.toggle(
+			"hidden",
+			craftingList.length > 0,
+		);
 
-			function calculateEverything() {
-				if (craftingList.length === 0) {
-					return;
-				}
+		craftingList.forEach((entry, index) => {
+			const row = document.createElement("div");
+			row.className = "craft-row";
 
-				const rawTotals = {};
-				const craftTotals = {};
+			const left = document.createElement("div");
+			left.className = "craft-row-left";
 
-				for (const entry of craftingList) {
-					expandRecipe(
-						entry.item,
-						entry.quantity,
-						rawTotals,
-						craftTotals
-					);
-				}
+			const icon = document.createElement("div");
+			icon.className = "item-icon";
+			icon.textContent = getItemIcon(entry.item);
 
-				latestRawTotals = rawTotals;
-				latestCraftTotals = craftTotals;
+			const textWrapper = document.createElement("div");
 
-				renderResults(rawTotals, craftTotals);
-			}
+			const name = document.createElement("strong");
+			name.textContent = entry.item;
 
-			calculateButton.addEventListener("click", calculateEverything);
+			const sub = document.createElement("span");
+			sub.textContent = getItemCategoryLabel(entry.item);
 
-			/*
-				==================================================
-				RESULT DISPLAY
-				==================================================
-			*/
+			textWrapper.appendChild(name);
+			textWrapper.appendChild(sub);
 
-			function renderResults(rawTotals, craftTotals) {
-				resultEmpty.classList.add("hidden");
+			left.appendChild(icon);
+			left.appendChild(textWrapper);
 
-				rawResults.classList.remove("hidden");
-				craftResults.classList.add("hidden");
+			const right = document.createElement("div");
+			right.className = "craft-row-right";
 
-				copyButton.disabled = false;
+			const quantity = document.createElement("span");
+			quantity.className = "craft-quantity";
+			quantity.textContent =
+				`×${formatFull(entry.quantity)}`;
 
-				renderResultList(rawResults, rawTotals, true);
-				renderResultList(craftResults, craftTotals, false);
+			const remove = document.createElement("button");
+			remove.type = "button";
+			remove.className = "remove-button";
+			remove.textContent = "×";
+			remove.setAttribute(
+				"aria-label",
+				`Remove ${entry.item}`,
+			);
 
-				document.querySelectorAll(".tab").forEach((tab) => {
-					tab.classList.toggle(
-						"active",
-						tab.dataset.tab === "raw"
-					);
-				});
-			}
-
-			function renderResultList(container, totals, rawMode) {
-				container.innerHTML = "";
-
-				const sortedEntries = Object.entries(totals).sort(
-					([nameA, amountA], [nameB, amountB]) => {
-						if (nameA === "Honey") return -1;
-						if (nameB === "Honey") return 1;
-
-						if (amountA !== amountB) {
-							return amountA > amountB ? -1 : 1;
-						}
-
-						return nameA.localeCompare(nameB);
-					}
-				);
-
-				if (sortedEntries.length === 0) {
-					const none = document.createElement("div");
-					none.className = "empty-breakdown";
-					none.textContent = "No materials to display.";
-					container.appendChild(none);
-					return;
-				}
-
-				sortedEntries.forEach(([item, amount]) => {
-					const row = document.createElement("div");
-					row.className = "result-row";
-
-					const identity = document.createElement("div");
-					identity.className = "result-identity";
-
-					const icon = document.createElement("div");
-					icon.className = "result-icon";
-					icon.textContent = getItemEmoji(item);
-
-					const text = document.createElement("div");
-
-					const name = document.createElement("strong");
-					name.textContent = item;
-
-					const type = document.createElement("span");
-					type.textContent = rawMode
-						? item === "Honey"
-							? "Currency"
-							: "Raw ingredient"
-						: "Craft this";
-
-					text.appendChild(name);
-					text.appendChild(type);
-
-					identity.appendChild(icon);
-					identity.appendChild(text);
-
-					const amountWrapper = document.createElement("div");
-					amountWrapper.className = "result-amount";
-
-					const formatted = document.createElement("strong");
-					formatted.textContent = formatCompact(amount);
-
-					const full = document.createElement("span");
-					full.textContent = formatFull(amount);
-
-					amountWrapper.appendChild(formatted);
-
-					if (formatted.textContent !== full.textContent) {
-						amountWrapper.appendChild(full);
-					}
-
-					row.appendChild(identity);
-					row.appendChild(amountWrapper);
-
-					container.appendChild(row);
-				});
-			}
-
-			function clearResults() {
-				latestRawTotals = {};
-				latestCraftTotals = {};
-
-				rawResults.innerHTML = "";
-				craftResults.innerHTML = "";
-
-				rawResults.classList.add("hidden");
-				craftResults.classList.add("hidden");
-
-				resultEmpty.classList.remove("hidden");
-
-				copyButton.disabled = true;
-			}
-
-			/*
-				==================================================
-				TABS
-				==================================================
-			*/
-
-			document.querySelectorAll(".tab").forEach((tab) => {
-				tab.addEventListener("click", () => {
-					if (resultEmpty.classList.contains("hidden") === false) {
-						return;
-					}
-
-					const selectedTab = tab.dataset.tab;
-
-					document.querySelectorAll(".tab").forEach((button) => {
-						button.classList.toggle(
-							"active",
-							button === tab
-						);
-					});
-
-					rawResults.classList.toggle(
-						"hidden",
-						selectedTab !== "raw"
-					);
-
-					craftResults.classList.toggle(
-						"hidden",
-						selectedTab !== "crafts"
-					);
-				});
+			remove.addEventListener("click", () => {
+				craftingList.splice(index, 1);
+				renderCraftList();
 			});
 
-			/*
-				==================================================
-				NUMBER FORMATTING
-				==================================================
-			*/
+			right.appendChild(quantity);
+			right.appendChild(remove);
 
-			const numberUnits = [
-				{
-					value: 1_000_000_000_000_000_000_000_000n,
-					suffix: "SP",
-				},
-				{
-					value: 1_000_000_000_000_000_000_000n,
-					suffix: "SX",
-				},
-				{
-					value: 1_000_000_000_000_000_000n,
-					suffix: "QI",
-				},
-				{
-					value: 1_000_000_000_000_000n,
-					suffix: "QD",
-				},
-				{
-					value: 1_000_000_000_000n,
-					suffix: "T",
-				},
-				{
-					value: 1_000_000_000n,
-					suffix: "B",
-				},
-				{
-					value: 1_000_000n,
-					suffix: "M",
-				},
-				{
-					value: 1_000n,
-					suffix: "K",
-				},
-			];
+			row.appendChild(left);
+			row.appendChild(right);
 
-			function formatCompact(value) {
-				const absolute = value < 0n ? -value : value;
+			craftListElement.appendChild(row);
+		});
+	}
 
-				for (const unit of numberUnits) {
-					if (absolute >= unit.value) {
-						const whole = absolute / unit.value;
+	clearButton.addEventListener("click", () => {
+		craftingList.length = 0;
+		renderCraftList();
+		clearResults();
+	});
 
-						const remainder =
-							absolute % unit.value;
+	function calculateEverything(): void {
+		if (craftingList.length === 0) {
+			return;
+		}
 
-						const decimals =
-							(remainder * 1000n) /
-							unit.value;
+		try {
+			const { rawTotals, craftTotals } =
+				calculateMaterials(craftingList);
 
-						let decimalString = decimals
-							.toString()
-							.padStart(3, "0");
+			latestRawTotals = rawTotals;
+			renderResults(rawTotals, craftTotals);
+		} catch (error) {
+			console.error(error);
+			alert(
+				error instanceof Error
+					? error.message
+					: "Unable to calculate materials.",
+			);
+		}
+	}
 
-						decimalString = decimalString.replace(
-							/0+$/,
-							""
-						);
+	calculateButton.addEventListener(
+		"click",
+		calculateEverything,
+	);
 
-						const sign = value < 0n ? "-" : "";
+	function sortedEntries(
+		totals: IngredientMap,
+	): [string, bigint][] {
+		return Object.entries(totals).sort(
+			([nameA, amountA], [nameB, amountB]) => {
+				if (nameA === "Honey") return -1;
+				if (nameB === "Honey") return 1;
 
-						return decimalString
-							? `${sign}${whole}.${decimalString}${unit.suffix}`
-							: `${sign}${whole}${unit.suffix}`;
-					}
+				if (amountA !== amountB) {
+					return amountA > amountB ? -1 : 1;
 				}
 
-				return formatFull(value);
+				return nameA.localeCompare(nameB);
+			},
+		);
+	}
+
+	function renderResults(
+		rawTotals: IngredientMap,
+		craftTotals: IngredientMap,
+	): void {
+		resultEmpty.classList.add("hidden");
+		rawResults.classList.remove("hidden");
+		craftResults.classList.add("hidden");
+		copyButton.disabled = false;
+
+		renderResultList(rawResults, rawTotals, true);
+		renderResultList(craftResults, craftTotals, false);
+
+		resultTabs.forEach((tab) => {
+			tab.classList.toggle(
+				"active",
+				tab.dataset.tab === "raw",
+			);
+		});
+	}
+
+	function renderResultList(
+		container: HTMLDivElement,
+		totals: IngredientMap,
+		rawMode: boolean,
+	): void {
+		container.innerHTML = "";
+
+		const entries = sortedEntries(totals);
+
+		if (entries.length === 0) {
+			const none = document.createElement("div");
+			none.className = "empty-breakdown";
+			none.textContent = rawMode
+				? "No raw materials are required for this selection."
+				: "No crafting steps to display.";
+			container.appendChild(none);
+			return;
+		}
+
+		for (const [item, amount] of entries) {
+			const row = document.createElement("div");
+			row.className = "result-row";
+
+			const identity = document.createElement("div");
+			identity.className = "result-identity";
+
+			const icon = document.createElement("div");
+			icon.className = "result-icon";
+			icon.textContent = getItemIcon(item);
+
+			const text = document.createElement("div");
+
+			const name = document.createElement("strong");
+			name.textContent = item;
+
+			const type = document.createElement("span");
+			type.textContent = rawMode
+				? item === "Honey"
+					? "Currency"
+					: "Raw ingredient"
+				: getItemCategoryLabel(item);
+
+			text.appendChild(name);
+			text.appendChild(type);
+
+			identity.appendChild(icon);
+			identity.appendChild(text);
+
+			const amountWrapper =
+				document.createElement("div");
+			amountWrapper.className = "result-amount";
+
+			const formatted = document.createElement("strong");
+			formatted.textContent = formatCompact(amount);
+
+			const full = document.createElement("span");
+			full.textContent = formatFull(amount);
+
+			amountWrapper.appendChild(formatted);
+
+			if (formatted.textContent !== full.textContent) {
+				amountWrapper.appendChild(full);
 			}
 
-			function formatFull(value) {
-				return value
-					.toString()
-					.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+			row.appendChild(identity);
+			row.appendChild(amountWrapper);
+
+			container.appendChild(row);
+		}
+	}
+
+	function clearResults(): void {
+		latestRawTotals = {};
+
+		rawResults.innerHTML = "";
+		craftResults.innerHTML = "";
+
+		rawResults.classList.add("hidden");
+		craftResults.classList.add("hidden");
+
+		resultEmpty.classList.remove("hidden");
+		copyButton.disabled = true;
+	}
+
+	resultTabs.forEach((tab) => {
+		tab.addEventListener("click", () => {
+			if (!resultEmpty.classList.contains("hidden")) {
+				return;
 			}
 
-			/*
-				==================================================
-				COPY RESULTS
-				==================================================
-			*/
+			const selectedTab = tab.dataset.tab;
 
-			copyButton.addEventListener("click", async () => {
-				if (!Object.keys(latestRawTotals).length) {
-					return;
-				}
-
-				const lines = [];
-
-				lines.push("The Majestic Bees - Raw Materials");
-				lines.push("--------------------------------");
-
-				const entries = Object.entries(latestRawTotals).sort(
-					([a], [b]) => {
-						if (a === "Honey") return -1;
-						if (b === "Honey") return 1;
-						return a.localeCompare(b);
-					}
+			resultTabs.forEach((button) => {
+				button.classList.toggle(
+					"active",
+					button === tab,
 				);
-
-				for (const [item, amount] of entries) {
-					lines.push(`${item}: ${formatFull(amount)}`);
-				}
-
-				try {
-					await navigator.clipboard.writeText(
-						lines.join("\n")
-					);
-
-					const previous = copyButton.textContent;
-
-					copyButton.textContent = "Copied!";
-
-					setTimeout(() => {
-						copyButton.textContent = previous;
-					}, 1400);
-				} catch {
-					copyButton.textContent = "Copy failed";
-				}
 			});
 
-			/*
-				==================================================
-				EMOJIS
-				Temporary placeholders until we add actual
-				TMB item artwork.
-				==================================================
-			*/
+			rawResults.classList.toggle(
+				"hidden",
+				selectedTab !== "raw",
+			);
 
-			function getItemEmoji(item) {
-				const emojis = {
-					"Honey": "🍯",
-					"Treat": "🍪",
-					"Strawberry": "🍓",
-					"Blueberry": "🫐",
-					"Bamboo": "🎋",
-					"Seed": "🌱",
-					"Pine Cone": "🌲",
-					"Royal Jelly": "🧴",
-					"Lunar Treat": "🌙",
-					"Lunar Essence": "🌙",
-					"Fire Essence": "🔥",
-					"Water Essence": "💧",
-					"Wind Essence": "💨",
-					"Lunar Shard": "💎",
-					"Starflower": "⭐",
-					"Dice": "🎲",
-					"Double Dice": "🎲",
-					"Triple Dice": "🎲",
-					"Glitter": "✨",
-					"Moon Extract": "🌙",
-					"Strawberry Extract": "🍓",
-					"Blueberry Extract": "🫐",
-					"Seed Oil": "🌻",
-					"Bamboo Flask": "🎋",
-					"Magic Carrot": "🥕",
-					"Golden Carrot": "🥕",
-					"Golden Apple": "🍎",
-					"Apple Treat": "🍎",
-					"Carrot Treat": "🥕",
-					"Pot'O'Vegetation": "🌿",
-					"Foaming Carrot Juice": "🥕",
-					"Rich Apple Juice": "🍎",
-					"Exp Essence": "🟢",
-					"Singularity Essence": "🌀",
-					"Shiny Jelly": "💫",
-				};
+			craftResults.classList.toggle(
+				"hidden",
+				selectedTab !== "crafts",
+			);
+		});
+	});
 
-				return emojis[item] ?? "🐝";
-			}
-		</script>
+	copyButton.addEventListener("click", async () => {
+		if (!Object.keys(latestRawTotals).length) {
+			return;
+		}
+
+		const lines = [
+			"The Majestic Bees - Raw Materials",
+			"--------------------------------",
+		];
+
+		for (const [item, amount] of sortedEntries(latestRawTotals)) {
+			lines.push(`${item}: ${formatFull(amount)}`);
+		}
+
+		try {
+			await navigator.clipboard.writeText(lines.join("\n"));
+
+			copyButton.textContent = "Copied!";
+
+			window.setTimeout(() => {
+				copyButton.textContent = "Copy";
+			}, 1400);
+		} catch {
+			copyButton.textContent = "Copy failed";
+		}
+	});
+</script>
+
 	</body>
 </html>
 
 <style is:global>
-	:root {
-		font-family:
-			Inter,
-			ui-sans-serif,
-			system-ui,
-			-apple-system,
-			BlinkMacSystemFont,
-			"Segoe UI",
-			sans-serif;
+:root {
+	--trans-blue: #5BCEFA;
+	--trans-pink: #F5A9B8;
+	--trans-white: #FFFFFF;
+	--bg-deep: #090d18;
+	--bg-soft: #101625;
+	font-family:
+		Inter,
+		ui-sans-serif,
+		system-ui,
+		-apple-system,
+		BlinkMacSystemFont,
+		"Segoe UI",
+		sans-serif;
+	color: #f8fafc;
+	background: #090d18;
+	font-synthesis: none;
+	text-rendering: optimizeLegibility;
+}
 
-		color: #f8fafc;
-		background: #080b12;
+* {
+	box-sizing: border-box;
+}
 
-		font-synthesis: none;
-		text-rendering: optimizeLegibility;
-	}
+html {
+	min-height: 100%;
+	background: #090d18;
+}
 
-	* {
-		box-sizing: border-box;
-	}
+body {
+	margin: 0;
+	min-height: 100vh;
+	overflow-x: hidden;
+	background:
+		radial-gradient(
+			circle at 50% -20%,
+			rgba(91, 206, 250, 0.14),
+			transparent 42%
+		),
+		linear-gradient(180deg, #0b1020 0%, #080b16 100%);
+}
 
-	html {
-		min-height: 100%;
-		background: #080b12;
-	}
+button,
+input {
+	font: inherit;
+}
 
-	body {
-		margin: 0;
-		min-height: 100vh;
-		overflow-x: hidden;
-		background:
-			radial-gradient(
-				circle at 50% -20%,
-				rgba(255, 193, 7, 0.11),
-				transparent 42%
-			),
-			linear-gradient(180deg, #0a0d15 0%, #07090f 100%);
-	}
+button {
+	cursor: pointer;
+}
 
-	button,
-	input {
-		font: inherit;
-	}
+.hidden {
+	display: none !important;
+}
 
-	button {
-		cursor: pointer;
-	}
+.background-glow {
+	position: fixed;
+	width: 500px;
+	height: 500px;
+	border-radius: 999px;
+	filter: blur(120px);
+	pointer-events: none;
+	z-index: 0;
+	opacity: 0.11;
+}
 
-	.hidden {
-		display: none !important;
-	}
+.glow-one {
+	background: #5BCEFA;
+	top: -260px;
+	left: -100px;
+}
 
-	.background-glow {
-		position: fixed;
-		width: 500px;
-		height: 500px;
-		border-radius: 999px;
-		filter: blur(120px);
-		pointer-events: none;
-		z-index: 0;
-		opacity: 0.11;
-	}
+.glow-two {
+	background: #F5A9B8;
+	bottom: -320px;
+	right: -130px;
+}
 
-	.glow-one {
-		background: #ffca28;
-		top: -260px;
-		left: -100px;
-	}
+.topbar {
+	position: relative;
+	z-index: 5;
+	height: 82px;
+	padding: 0 42px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+	background: rgba(8, 11, 18, 0.74);
+	backdrop-filter: blur(20px);
+}
 
-	.glow-two {
-		background: #f59e0b;
-		bottom: -320px;
-		right: -130px;
-	}
+.brand {
+	display: flex;
+	align-items: center;
+	gap: 13px;
+}
 
-	.topbar {
-		position: relative;
-		z-index: 5;
+.bee-logo {
+	width: 46px;
+	height: 46px;
+	display: grid;
+	place-items: center;
+	border-radius: 14px;
+	font-size: 25px;
+	background: linear-gradient(145deg, var(--trans-blue), var(--trans-white) 50%, var(--trans-pink));
+	box-shadow:
+		0 8px 24px rgba(245, 169, 184, 0.22),
+		inset 0 1px rgba(255, 255, 255, 0.3);
+}
 
-		height: 82px;
-		padding: 0 42px;
+.brand-title {
+	font-size: 15px;
+	font-weight: 800;
+	letter-spacing: -0.02em;
+}
 
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
+.brand-subtitle {
+	margin-top: 2px;
+	font-size: 12px;
+	color: #858b99;
+}
 
-		border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+.recipe-count {
+	padding: 8px 13px;
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 700;
+	color: #aeb4c0;
+	background: rgba(255, 255, 255, 0.035);
+}
 
-		background: rgba(8, 11, 18, 0.74);
-		backdrop-filter: blur(20px);
-	}
+.recipe-count span {
+	color: #5BCEFA;
+}
 
-	.brand {
-		display: flex;
-		align-items: center;
-		gap: 13px;
-	}
+.count-divider {
+	margin: 0 4px;
+	color: #555c68 !important;
+}
 
-	.bee-logo {
-		width: 46px;
-		height: 46px;
+main {
+	position: relative;
+	z-index: 1;
+	width: min(1220px, calc(100% - 40px));
+	margin: 0 auto;
+}
 
-		display: grid;
-		place-items: center;
+.hero {
+	max-width: 760px;
+	padding: 78px 0 52px;
+}
 
-		border-radius: 14px;
+.eyebrow,
+.panel-kicker {
+	margin: 0 0 11px;
+	font-size: 11px;
+	font-weight: 900;
+	letter-spacing: 0.18em;
+	color: #F5A9B8;
+}
 
-		font-size: 25px;
+.hero h1 {
+	max-width: 760px;
+	margin: 0;
+	font-size: clamp(42px, 6vw, 72px);
+	line-height: 1.08;
+	letter-spacing: -0.065em;
+	font-weight: 900;
+	color: #f8fafc;
+}
 
-		background: linear-gradient(
+.hero h1 span {
+	display: block;
+	background: linear-gradient(90deg, var(--trans-blue), var(--trans-white) 50%, var(--trans-pink));
+	-webkit-background-clip: text;
+	background-clip: text;
+	color: transparent;
+}
+
+.hero > p {
+	max-width: 650px;
+	margin: 24px 0 0;
+	font-size: 16px;
+	line-height: 1.75;
+	color: #9096a5;
+}
+
+.calculator-layout {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(390px, 0.82fr);
+	gap: 20px;
+	align-items: start;
+}
+
+.panel {
+	border: 1px solid rgba(255, 255, 255, 0.075);
+	border-radius: 24px;
+	background:
+		linear-gradient(
 			145deg,
-			#ffda4f,
-			#f59e0b
+			rgba(255, 255, 255, 0.043),
+			rgba(255, 255, 255, 0.018)
 		);
+	box-shadow:
+		0 24px 70px rgba(0, 0, 0, 0.22),
+		inset 0 1px rgba(255, 255, 255, 0.04);
+	overflow: visible;
+}
 
-		box-shadow:
-			0 8px 24px rgba(245, 158, 11, 0.18),
-			inset 0 1px rgba(255, 255, 255, 0.3);
-	}
+.builder-panel,
+.results-panel {
+	padding: 27px;
+}
 
-	.brand-title {
-		font-size: 15px;
-		font-weight: 800;
-		letter-spacing: -0.02em;
-	}
+.results-panel {
+	position: sticky;
+	top: 22px;
+}
 
-	.brand-subtitle {
-		margin-top: 2px;
+.panel-heading {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 15px;
+	margin-bottom: 24px;
+}
 
-		font-size: 12px;
-		color: #858b99;
-	}
+.panel-heading h2 {
+	margin: 0;
+	font-size: 22px;
+	letter-spacing: -0.035em;
+}
 
-	.recipe-count {
-		padding: 8px 13px;
+.panel-kicker {
+	margin-bottom: 7px;
+}
 
-		border: 1px solid rgba(255, 255, 255, 0.08);
-		border-radius: 999px;
+.text-button,
+.copy-button {
+	border: 0;
+	background: transparent;
+	color: #7f8695;
+	font-size: 12px;
+	font-weight: 700;
+}
 
-		font-size: 12px;
-		font-weight: 700;
-		color: #aeb4c0;
+.text-button:hover,
+.copy-button:hover:not(:disabled) {
+	color: #5BCEFA;
+}
 
-		background: rgba(255, 255, 255, 0.035);
-	}
+.copy-button {
+	padding: 8px 12px;
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	border-radius: 10px;
+	background: rgba(255, 255, 255, 0.035);
+}
 
-	.recipe-count span {
-		color: #f6c744;
+.copy-button:disabled {
+	cursor: default;
+	opacity: 0.4;
+}
+
+.add-item-box {
+	padding: 20px;
+	border: 1px solid rgba(255, 255, 255, 0.07);
+	border-radius: 18px;
+	background: rgba(0, 0, 0, 0.18);
+}
+
+.item-filter-tabs {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 6px;
+	margin-bottom: 18px;
+	padding: 5px;
+	border: 1px solid rgba(255, 255, 255, 0.06);
+	border-radius: 13px;
+	background: rgba(0, 0, 0, 0.22);
+}
+
+.item-filter {
+	min-width: 0;
+	height: 38px;
+	padding: 0 9px;
+	border: 0;
+	border-radius: 9px;
+	color: #747b8a;
+	background: transparent;
+	font-size: 11px;
+	font-weight: 800;
+	white-space: nowrap;
+	transition:
+		color 150ms ease,
+		background 150ms ease,
+		box-shadow 150ms ease;
+}
+
+.item-filter:hover {
+	color: #d7dbe4;
+	background: rgba(255, 255, 255, 0.035);
+}
+
+.item-filter.active {
+	color: #FFFFFF;
+	background: rgba(245, 169, 184, 0.10);
+	box-shadow: inset 0 0 0 1px rgba(91, 206, 250, 0.18);
+}
+
+label {
+	display: block;
+	margin-bottom: 8px;
+	font-size: 11px;
+	font-weight: 800;
+	letter-spacing: 0.03em;
+	color: #979dab;
+}
+
+.search-wrapper {
+	position: relative;
+	z-index: 20;
+}
+
+#itemSearch {
+	width: 100%;
+	height: 50px;
+	padding: 0 15px;
+	border: 1px solid rgba(255, 255, 255, 0.09);
+	border-radius: 13px;
+	outline: none;
+	color: #edf0f6;
+	background: #11151e;
+	transition:
+		border-color 160ms ease,
+		box-shadow 160ms ease;
+}
+
+#itemSearch::placeholder {
+	color: #555d6d;
+}
+
+#itemSearch:focus {
+	border-color: rgba(91, 206, 250, 0.52);
+	box-shadow: 0 0 0 4px rgba(91, 206, 250, 0.08);
+}
+
+.search-results {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: calc(100% + 7px);
+	max-height: 320px;
+	padding: 7px;
+	overflow-y: auto;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 14px;
+	background: #121620;
+	box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
+}
+
+.search-option {
+	width: 100%;
+	padding: 11px 12px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	border: 0;
+	border-radius: 9px;
+	text-align: left;
+	color: #dce0e8;
+	background: transparent;
+}
+
+.search-option:hover {
+	color: #ffffff;
+	background: rgba(245, 169, 184, 0.10);
+}
+
+.search-option-name {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-weight: 700;
+}
+
+.search-option-badge {
+	flex: 0 0 auto;
+	max-width: 52%;
+	padding: 4px 7px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	border: 1px solid rgba(255, 255, 255, 0.07);
+	border-radius: 999px;
+	color: #858c9a;
+	background: rgba(255, 255, 255, 0.035);
+	font-size: 9px;
+	font-weight: 800;
+}
+
+.search-option-badge.equipment {
+	color: #F5A9B8;
+	border-color: rgba(245, 169, 184, 0.20);
+	background: rgba(91, 206, 250, 0.08);
+}
+
+.search-option-badge.mixer {
+	color: #5BCEFA;
+	border-color: rgba(91, 206, 250, 0.20);
+	background: rgba(91, 206, 250, 0.08);
+}
+
+.search-option-badge.raw {
+	color: #FFFFFF;
+	border-color: rgba(255, 255, 255, 0.18);
+	background: rgba(255, 255, 255, 0.06);
+}
+
+.search-empty {
+	padding: 16px;
+	text-align: center;
+	font-size: 12px;
+	color: #717887;
+}
+
+.quantity-area {
+	display: grid;
+	grid-template-columns: minmax(170px, 0.72fr) 1fr;
+	gap: 14px;
+	align-items: end;
+	margin-top: 16px;
+}
+
+.quantity-field {
+	min-width: 0;
+}
+
+.quantity-control {
+	height: 48px;
+	display: grid;
+	grid-template-columns: 42px 1fr 42px;
+	overflow: hidden;
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	border-radius: 12px;
+	background: #11151e;
+}
+
+.quantity-control button {
+	border: 0;
+	color: #8e95a4;
+	background: transparent;
+	font-size: 20px;
+}
+
+.quantity-control button:hover {
+	color: #5BCEFA;
+	background: rgba(255, 255, 255, 0.04);
+}
+
+.quantity-control input {
+	width: 100%;
+	min-width: 0;
+	border: 0;
+	border-left: 1px solid rgba(255, 255, 255, 0.06);
+	border-right: 1px solid rgba(255, 255, 255, 0.06);
+	outline: none;
+	text-align: center;
+	color: white;
+	background: transparent;
+	font-weight: 800;
+}
+
+.quantity-control input::-webkit-inner-spin-button,
+.quantity-control input::-webkit-outer-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+.primary-button {
+	height: 48px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 7px;
+	border: 1px solid rgba(245, 169, 184, 0.28);
+	border-radius: 12px;
+	font-weight: 800;
+	color: #FFFFFF;
+	background: rgba(245, 169, 184, 0.10);
+	transition:
+		transform 150ms ease,
+		background 150ms ease;
+}
+
+.primary-button:hover {
+	transform: translateY(-1px);
+	background: rgba(91, 206, 250, 0.16);
+}
+
+.empty-state {
+	margin-top: 18px;
+	padding: 24px;
+	display: flex;
+	align-items: center;
+	gap: 15px;
+	border: 1px dashed rgba(255, 255, 255, 0.09);
+	border-radius: 15px;
+	color: #7f8694;
+}
+
+.empty-icon {
+	width: 42px;
+	height: 42px;
+	display: grid;
+	place-items: center;
+	flex: 0 0 auto;
+	border-radius: 12px;
+	font-size: 20px;
+	background: rgba(255, 255, 255, 0.035);
+}
+
+.empty-state strong {
+	display: block;
+	color: #afb4bf;
+	font-size: 13px;
+}
+
+.empty-state p {
+	margin: 3px 0 0;
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+.craft-list {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin-top: 17px;
+}
+
+.craft-row {
+	min-height: 66px;
+	padding: 10px 12px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	border: 1px solid rgba(255, 255, 255, 0.06);
+	border-radius: 14px;
+	background: rgba(255, 255, 255, 0.025);
+}
+
+.craft-row-left,
+.result-identity {
+	min-width: 0;
+	display: flex;
+	align-items: center;
+	gap: 11px;
+}
+
+.item-icon,
+.result-icon {
+	flex: 0 0 auto;
+	width: 40px;
+	height: 40px;
+	display: grid;
+	place-items: center;
+	border: 1px solid rgba(255, 255, 255, 0.06);
+	border-radius: 11px;
+	background: rgba(255, 255, 255, 0.035);
+	font-size: 19px;
+}
+
+.craft-row-left strong,
+.result-identity strong {
+	display: block;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 13px;
+}
+
+.craft-row-left span,
+.result-identity span {
+	display: block;
+	margin-top: 3px;
+	font-size: 10px;
+	color: #686f7e;
+}
+
+.craft-row-right {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+}
+
+.craft-quantity {
+	padding: 6px 9px;
+	border-radius: 8px;
+	font-size: 12px;
+	font-weight: 900;
+	color: #F5A9B8;
+	background: rgba(245, 169, 184, 0.09);
+}
+
+.remove-button {
+	width: 31px;
+	height: 31px;
+	border: 0;
+	border-radius: 9px;
+	color: #717887;
+	background: transparent;
+	font-size: 18px;
+}
+
+.remove-button:hover {
+	color: #ff7676;
+	background: rgba(255, 80, 80, 0.08);
+}
+
+.calculate-button {
+	width: 100%;
+	height: 58px;
+	margin-top: 20px;
+	padding: 0 20px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	border: 0;
+	border-radius: 15px;
+	font-size: 14px;
+	font-weight: 900;
+	color: #08111a;
+	background: linear-gradient(110deg, var(--trans-blue), var(--trans-white) 50%, var(--trans-pink));
+	box-shadow:
+		0 12px 35px rgba(91, 206, 250, 0.16),
+		inset 0 1px rgba(255, 255, 255, 0.35);
+	transition:
+		transform 160ms ease,
+		box-shadow 160ms ease;
+}
+
+.calculate-button:hover {
+	transform: translateY(-2px);
+	box-shadow:
+		0 16px 40px rgba(245, 169, 184, 0.24),
+		inset 0 1px rgba(255, 255, 255, 0.35);
+}
+
+.arrow {
+	font-size: 20px;
+}
+
+.tabs {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	padding: 4px;
+	border-radius: 12px;
+	background: rgba(0, 0, 0, 0.22);
+	margin-bottom: 16px;
+}
+
+.tab {
+	height: 39px;
+	border: 0;
+	border-radius: 9px;
+	color: #737a89;
+	background: transparent;
+	font-size: 11px;
+	font-weight: 800;
+}
+
+.tab.active {
+	color: #FFFFFF;
+	background: rgba(245, 169, 184, 0.10);
+	box-shadow: inset 0 0 0 1px rgba(91, 206, 250, 0.18);
+}
+
+.result-empty {
+	min-height: 350px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	color: #707787;
+}
+
+.result-empty-icon {
+	width: 58px;
+	height: 58px;
+	display: grid;
+	place-items: center;
+	margin-bottom: 14px;
+	border: 1px solid rgba(255, 255, 255, 0.06);
+	border-radius: 17px;
+	font-size: 26px;
+	background: rgba(255, 255, 255, 0.025);
+}
+
+.result-empty h3 {
+	margin: 0;
+	font-size: 14px;
+	color: #9da3af;
+}
+
+.result-empty p {
+	max-width: 260px;
+	margin: 7px auto 0;
+	font-size: 11px;
+	line-height: 1.6;
+}
+
+.results-list {
+	max-height: 580px;
+	overflow-y: auto;
+	padding-right: 3px;
+}
+
+.result-row {
+	min-height: 62px;
+	padding: 9px 7px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+}
+
+.result-row:last-child {
+	border-bottom: 0;
+}
+
+.result-amount {
+	flex: 0 0 auto;
+	text-align: right;
+}
+
+.result-amount strong {
+	display: block;
+	font-size: 14px;
+	color: #5BCEFA;
+}
+
+.result-amount span {
+	display: block;
+	max-width: 170px;
+	margin-top: 3px;
+	overflow-wrap: anywhere;
+	font-size: 9px;
+	color: #656c7a;
+}
+
+.empty-breakdown {
+	padding: 50px 10px;
+	text-align: center;
+	font-size: 12px;
+	color: #777e8d;
+}
+
+footer {
+	padding: 45px 0 55px;
+	text-align: center;
+	font-size: 11px;
+	color: #555c6a;
+}
+
+footer strong {
+	color: #777e8a;
+}
+
+::-webkit-scrollbar {
+	width: 7px;
+}
+
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+	border-radius: 20px;
+	background: rgba(255, 255, 255, 0.12);
+}
+
+@media (max-width: 900px) {
+	.topbar {
+		padding: 0 20px;
 	}
 
 	main {
-		position: relative;
-		z-index: 1;
-
-		width: min(1220px, calc(100% - 40px));
-		margin: 0 auto;
+		width: min(100% - 28px, 700px);
 	}
 
 	.hero {
-		max-width: 760px;
-		padding: 78px 0 52px;
-	}
-
-	.eyebrow,
-	.panel-kicker {
-		margin: 0 0 11px;
-
-		font-size: 11px;
-		font-weight: 900;
-		letter-spacing: 0.18em;
-
-		color: #eab831;
-	}
-
-	.hero h1 {
-		max-width: 760px;
-		margin: 0;
-
-		font-size: clamp(42px, 6vw, 72px);
-		line-height: 1.08;
-		letter-spacing: -0.065em;
-		font-weight: 900;
-
-		color: #f8fafc;
-	}
-
-	.hero h1 span {
-		display: block;
-
-		background: linear-gradient(
-			90deg,
-			#facc15,
-			#fb923c
-		);
-
-		-webkit-background-clip: text;
-		background-clip: text;
-
-		color: transparent;
-	}
-
-	.hero > p {
-		max-width: 650px;
-
-		margin: 24px 0 0;
-
-		font-size: 16px;
-		line-height: 1.75;
-
-		color: #9096a5;
+		padding: 56px 0 38px;
 	}
 
 	.calculator-layout {
-		display: grid;
-		grid-template-columns: minmax(0, 1fr) minmax(390px, 0.82fr);
-
-		gap: 20px;
-		align-items: start;
-	}
-
-	.panel {
-		border: 1px solid rgba(255, 255, 255, 0.075);
-		border-radius: 24px;
-
-		background:
-			linear-gradient(
-				145deg,
-				rgba(255, 255, 255, 0.043),
-				rgba(255, 255, 255, 0.018)
-			);
-
-		box-shadow:
-			0 24px 70px rgba(0, 0, 0, 0.22),
-			inset 0 1px rgba(255, 255, 255, 0.04);
-
-		overflow: visible;
-	}
-
-	.builder-panel {
-		padding: 27px;
+		grid-template-columns: 1fr;
 	}
 
 	.results-panel {
-		padding: 27px;
+		position: static;
+	}
+}
 
-		position: sticky;
-		top: 22px;
+@media (max-width: 560px) {
+	.topbar {
+		height: 72px;
 	}
 
-	.panel-heading {
-		display: flex;
-		align-items: flex-start;
-		justify-content: space-between;
-		gap: 15px;
-
-		margin-bottom: 24px;
+	.bee-logo {
+		width: 40px;
+		height: 40px;
+		font-size: 21px;
 	}
 
-	.panel-heading h2 {
-		margin: 0;
-
-		font-size: 22px;
-		letter-spacing: -0.035em;
+	.brand-title {
+		font-size: 13px;
 	}
 
-	.panel-kicker {
-		margin-bottom: 7px;
+	.brand-subtitle {
+		font-size: 10px;
 	}
 
-	.text-button,
-	.copy-button {
-		border: 0;
-		background: transparent;
-
-		color: #7f8695;
-
-		font-size: 12px;
-		font-weight: 700;
+	.recipe-count {
+		display: none;
 	}
 
-	.text-button:hover,
-	.copy-button:hover:not(:disabled) {
-		color: #f9c83d;
+	.hero h1 {
+		font-size: 38px;
+		letter-spacing: -0.05em;
 	}
 
-	.copy-button {
-		padding: 8px 12px;
-
-		border: 1px solid rgba(255, 255, 255, 0.08);
-		border-radius: 10px;
-
-		background: rgba(255, 255, 255, 0.035);
+	.hero > p {
+		font-size: 14px;
 	}
 
-	.copy-button:disabled {
-		cursor: default;
-		opacity: 0.4;
+	.builder-panel,
+	.results-panel {
+		padding: 19px;
+		border-radius: 20px;
 	}
 
-	.add-item-box {
-		padding: 20px;
-
-		border: 1px solid rgba(255, 255, 255, 0.07);
-		border-radius: 18px;
-
-		background: rgba(0, 0, 0, 0.18);
+	.item-filter-tabs {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 
-	label {
-		display: block;
-
-		margin-bottom: 8px;
-
-		font-size: 11px;
-		font-weight: 800;
-		letter-spacing: 0.03em;
-
-		color: #979dab;
-	}
-
-	.search-wrapper {
-		position: relative;
-		z-index: 20;
-	}
-
-	#itemSearch {
-		width: 100%;
-		height: 50px;
-
-		padding: 0 15px;
-
-		border: 1px solid rgba(255, 255, 255, 0.09);
-		border-radius: 13px;
-
-		outline: none;
-
-		color: #edf0f6;
-
-		background: #11151e;
-
-		transition:
-			border-color 160ms ease,
-			box-shadow 160ms ease;
-	}
-
-	#itemSearch::placeholder {
-		color: #555d6d;
-	}
-
-	#itemSearch:focus {
-		border-color: rgba(250, 204, 21, 0.48);
-
-		box-shadow: 0 0 0 4px rgba(250, 204, 21, 0.06);
-	}
-
-	.search-results {
-		position: absolute;
-		left: 0;
-		right: 0;
-		top: calc(100% + 7px);
-
-		max-height: 280px;
-		padding: 7px;
-
-		overflow-y: auto;
-
-		border: 1px solid rgba(255, 255, 255, 0.1);
-		border-radius: 14px;
-
-		background: #121620;
-
-		box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
-	}
-
-	.search-option {
-		width: 100%;
-
-		padding: 11px 12px;
-
-		border: 0;
-		border-radius: 9px;
-
-		text-align: left;
-
-		color: #dce0e8;
-		background: transparent;
-	}
-
-	.search-option:hover {
-		color: #fff7d0;
-		background: rgba(250, 204, 21, 0.09);
-	}
-
-	.search-empty {
-		padding: 16px;
-
-		text-align: center;
-
-		font-size: 12px;
-		color: #717887;
+	.search-option-badge {
+		max-width: 46%;
 	}
 
 	.quantity-area {
-		display: grid;
-		grid-template-columns: minmax(170px, 0.72fr) 1fr;
-
-		gap: 14px;
-		align-items: end;
-
-		margin-top: 16px;
+		grid-template-columns: 1fr;
 	}
 
-	.quantity-field {
-		min-width: 0;
-	}
-
-	.quantity-control {
-		height: 48px;
-
-		display: grid;
-		grid-template-columns: 42px 1fr 42px;
-
-		overflow: hidden;
-
-		border: 1px solid rgba(255, 255, 255, 0.08);
-		border-radius: 12px;
-
-		background: #11151e;
-	}
-
-	.quantity-control button {
-		border: 0;
-
-		color: #8e95a4;
-		background: transparent;
-
-		font-size: 20px;
-	}
-
-	.quantity-control button:hover {
-		color: #facc15;
-		background: rgba(255, 255, 255, 0.04);
-	}
-
-	.quantity-control input {
-		width: 100%;
-		min-width: 0;
-
-		border: 0;
-		border-left: 1px solid rgba(255, 255, 255, 0.06);
-		border-right: 1px solid rgba(255, 255, 255, 0.06);
-
-		outline: none;
-
-		text-align: center;
-
-		color: white;
-		background: transparent;
-
-		font-weight: 800;
-	}
-
-	.quantity-control input::-webkit-inner-spin-button,
-	.quantity-control input::-webkit-outer-spin-button {
-		-webkit-appearance: none;
-		margin: 0;
-	}
-
-	.primary-button {
-		height: 48px;
-
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 7px;
-
-		border: 1px solid rgba(250, 204, 21, 0.23);
-		border-radius: 12px;
-
-		font-weight: 800;
-		color: #ffe782;
-
-		background: rgba(250, 204, 21, 0.09);
-
-		transition:
-			transform 150ms ease,
-			background 150ms ease;
-	}
-
-	.primary-button:hover {
-		transform: translateY(-1px);
-
-		background: rgba(250, 204, 21, 0.14);
-	}
-
-	.empty-state {
-		margin-top: 18px;
-		padding: 24px;
-
-		display: flex;
-		align-items: center;
-		gap: 15px;
-
-		border: 1px dashed rgba(255, 255, 255, 0.09);
-		border-radius: 15px;
-
-		color: #7f8694;
-	}
-
-	.empty-icon {
-		width: 42px;
-		height: 42px;
-
-		display: grid;
-		place-items: center;
-
-		border-radius: 12px;
-
-		font-size: 20px;
-
-		background: rgba(255, 255, 255, 0.035);
-	}
-
-	.empty-state strong {
-		display: block;
-
-		color: #afb4bf;
-		font-size: 13px;
-	}
-
-	.empty-state p {
-		margin: 3px 0 0;
-
-		font-size: 12px;
-	}
-
-	.craft-list {
-		display: flex;
-		flex-direction: column;
-		gap: 8px;
-
-		margin-top: 17px;
-	}
-
-	.craft-row {
-		min-height: 66px;
-
-		padding: 10px 12px;
-
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 12px;
-
-		border: 1px solid rgba(255, 255, 255, 0.06);
-		border-radius: 14px;
-
-		background: rgba(255, 255, 255, 0.025);
-	}
-
-	.craft-row-left,
-	.result-identity {
-		min-width: 0;
-
-		display: flex;
-		align-items: center;
-		gap: 11px;
-	}
-
-	.item-icon,
-	.result-icon {
-		flex: 0 0 auto;
-
-		width: 40px;
-		height: 40px;
-
-		display: grid;
-		place-items: center;
-
-		border: 1px solid rgba(255, 255, 255, 0.06);
-		border-radius: 11px;
-
-		background: rgba(255, 255, 255, 0.035);
-
-		font-size: 19px;
-	}
-
-	.craft-row-left strong,
-	.result-identity strong {
-		display: block;
-
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-
-		font-size: 13px;
-	}
-
-	.craft-row-left span,
-	.result-identity span {
-		display: block;
-
-		margin-top: 3px;
-
-		font-size: 10px;
-		color: #686f7e;
-	}
-
-	.craft-row-right {
-		display: flex;
-		align-items: center;
-		gap: 9px;
-	}
-
-	.craft-quantity {
-		padding: 6px 9px;
-
-		border-radius: 8px;
-
-		font-size: 12px;
-		font-weight: 900;
-		color: #f5ca48;
-
-		background: rgba(250, 204, 21, 0.07);
-	}
-
-	.remove-button {
-		width: 31px;
-		height: 31px;
-
-		border: 0;
-		border-radius: 9px;
-
-		color: #717887;
-		background: transparent;
-
-		font-size: 18px;
-	}
-
-	.remove-button:hover {
-		color: #ff7676;
-		background: rgba(255, 80, 80, 0.08);
-	}
-
-	.calculate-button {
-		width: 100%;
-		height: 58px;
-
-		margin-top: 20px;
-		padding: 0 20px;
-
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-
-		border: 0;
-		border-radius: 15px;
-
-		font-size: 14px;
-		font-weight: 900;
-
-		color: #171208;
-
-		background:
-			linear-gradient(
-				110deg,
-				#f7c92f,
-				#ffb52b
-			);
-
-		box-shadow:
-			0 12px 35px rgba(245, 158, 11, 0.13),
-			inset 0 1px rgba(255, 255, 255, 0.35);
-
-		transition:
-			transform 160ms ease,
-			box-shadow 160ms ease;
-	}
-
-	.calculate-button:hover {
-		transform: translateY(-2px);
-
-		box-shadow:
-			0 16px 40px rgba(245, 158, 11, 0.2),
-			inset 0 1px rgba(255, 255, 255, 0.35);
-	}
-
-	.arrow {
-		font-size: 20px;
-	}
-
-	.tabs {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-
-		padding: 4px;
-
-		border-radius: 12px;
-
-		background: rgba(0, 0, 0, 0.22);
-
-		margin-bottom: 16px;
-	}
-
-	.tab {
-		height: 39px;
-
-		border: 0;
-		border-radius: 9px;
-
-		color: #737a89;
-		background: transparent;
-
-		font-size: 11px;
-		font-weight: 800;
-	}
-
-	.tab.active {
-		color: #f4c947;
-
-		background: rgba(250, 204, 21, 0.09);
-
-		box-shadow: inset 0 0 0 1px rgba(250, 204, 21, 0.12);
-	}
-
-	.result-empty {
-		min-height: 350px;
-
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-
-		text-align: center;
-
-		color: #707787;
-	}
-
-	.result-empty-icon {
-		width: 58px;
-		height: 58px;
-
-		display: grid;
-		place-items: center;
-
-		margin-bottom: 14px;
-
-		border: 1px solid rgba(255, 255, 255, 0.06);
-		border-radius: 17px;
-
-		font-size: 26px;
-
-		background: rgba(255, 255, 255, 0.025);
-	}
-
-	.result-empty h3 {
-		margin: 0;
-
-		font-size: 14px;
-		color: #9da3af;
-	}
-
-	.result-empty p {
-		max-width: 260px;
-
-		margin: 7px auto 0;
-
-		font-size: 11px;
-		line-height: 1.6;
-	}
-
-	.results-list {
-		max-height: 580px;
-		overflow-y: auto;
-
-		padding-right: 3px;
-	}
-
+	.craft-row,
 	.result-row {
-		min-height: 62px;
-
-		padding: 9px 7px;
-
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 12px;
-
-		border-bottom: 1px solid rgba(255, 255, 255, 0.055);
-	}
-
-	.result-row:last-child {
-		border-bottom: 0;
+		align-items: flex-start;
 	}
 
 	.result-amount {
-		flex: 0 0 auto;
-
-		text-align: right;
+		max-width: 120px;
 	}
+}
 
-	.result-amount strong {
-		display: block;
 
-		font-size: 14px;
-		color: #f8d65c;
-	}
+/* Trans flag accent details */
+.topbar::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: -1px;
+	height: 2px;
+	background: linear-gradient(90deg, var(--trans-blue), var(--trans-pink), var(--trans-white), var(--trans-pink), var(--trans-blue));
+	opacity: 0.65;
+}
 
-	.result-amount span {
-		display: block;
+.panel {
+	box-shadow:
+		0 24px 70px rgba(0, 0, 0, 0.24),
+		0 0 0 1px rgba(91, 206, 250, 0.025),
+		inset 0 1px rgba(255, 255, 255, 0.04);
+}
 
-		max-width: 170px;
+.item-filter.active {
+	color: #ffffff;
+	background: linear-gradient(90deg, rgba(91, 206, 250, 0.14), rgba(245, 169, 184, 0.14));
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
 
-		margin-top: 3px;
+.tab.active {
+	color: #ffffff;
+	background: linear-gradient(90deg, rgba(91, 206, 250, 0.12), rgba(245, 169, 184, 0.12));
+}
 
-		overflow-wrap: anywhere;
+.primary-button {
+	background: linear-gradient(90deg, rgba(91, 206, 250, 0.13), rgba(245, 169, 184, 0.13));
+	border-color: rgba(255, 255, 255, 0.13);
+}
 
-		font-size: 9px;
-		color: #656c7a;
-	}
+.primary-button:hover {
+	background: linear-gradient(90deg, rgba(91, 206, 250, 0.21), rgba(245, 169, 184, 0.21));
+}
 
-	.empty-breakdown {
-		padding: 50px 10px;
-
-		text-align: center;
-
-		font-size: 12px;
-		color: #777e8d;
-	}
-
-	footer {
-		padding: 45px 0 55px;
-
-		text-align: center;
-
-		font-size: 11px;
-		color: #555c6a;
-	}
-
-	footer strong {
-		color: #777e8a;
-	}
-
-	::-webkit-scrollbar {
-		width: 7px;
-	}
-
-	::-webkit-scrollbar-track {
-		background: transparent;
-	}
-
-	::-webkit-scrollbar-thumb {
-		border-radius: 20px;
-		background: rgba(255, 255, 255, 0.12);
-	}
-
-	@media (max-width: 900px) {
-		.topbar {
-			padding: 0 20px;
-		}
-
-		main {
-			width: min(100% - 28px, 700px);
-		}
-
-		.hero {
-			padding: 56px 0 38px;
-		}
-
-		.calculator-layout {
-			grid-template-columns: 1fr;
-		}
-
-		.results-panel {
-			position: static;
-		}
-	}
-
-	@media (max-width: 560px) {
-		.topbar {
-			height: 72px;
-		}
-
-		.bee-logo {
-			width: 40px;
-			height: 40px;
-
-			font-size: 21px;
-		}
-
-		.brand-title {
-			font-size: 13px;
-		}
-
-		.brand-subtitle {
-			font-size: 10px;
-		}
-
-		.recipe-count {
-			display: none;
-		}
-
-		.hero h1 {
-			font-size: 38px;
-		}
-
-		.hero > p {
-			font-size: 14px;
-		}
-
-		.builder-panel,
-		.results-panel {
-			padding: 19px;
-			border-radius: 20px;
-		}
-
-		.quantity-area {
-			grid-template-columns: 1fr;
-		}
-
-		.craft-row,
-		.result-row {
-			align-items: flex-start;
-		}
-
-		.result-amount {
-			max-width: 120px;
-		}
-	}
 </style>
