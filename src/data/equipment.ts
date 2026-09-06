@@ -681,7 +681,7 @@ export const equipmentData: Record<string, EquipmentItem> = {
 		},
 	},
 	// Painter
-	"Canvas Helmet"
+	"Canvas Helmet" : {
 		shop: "Painter"
 		type: "Gear"
 		ingredients: {
