@@ -680,7 +680,18 @@ export const equipmentData: Record<string, EquipmentItem> = {
 			"Water Essence": 50n,
 		},
 	},
-
+	// Painter
+	"Canvas Helmet"
+		shop: "Painter"
+		type: "Gear"
+		ingredients: {
+			Honey: 125_000_000_000_000n,
+			"Foaming Carrot Juice": 2n,
+			"Triple Dice": 8n,
+			"Gardener's Bundle": 10n,
+			"Bamboo Boba Tea": 25n,
+		},
+	},
 	// Gardening
 	"Seed Pouch": {
 		shop: "Gardening",
